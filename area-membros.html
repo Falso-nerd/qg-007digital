@@ -17,6 +17,7 @@
       max-width: 600px;
       color: #ffffff;
       text-align: center;
+      position: relative;
     }
 
     .painel h2 {
@@ -53,20 +54,17 @@
       background-color: #00e07a;
     }
 
-    .painel button {
-      padding: 12px 24px;
+    .logout-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
       border: none;
-      border-radius: 8px;
-      background-color: #444;
       color: #fff;
-      font-weight: bold;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .painel button:hover {
-      background-color: #666;
+      border-bottom: 1px solid #fff;
+      padding: 5px;
     }
 
     body {
@@ -82,15 +80,15 @@
 </head>
 <body>
   <div class="painel">
+    <button class="logout-btn" onclick="logout()">Sair</button>
     <h2>Área de Membros</h2>
     <p>Escolha o que deseja acessar:</p>
 
     <div class="btn-group">
       <a href="ferramentas.html">🔧 Ferramentas do QG</a>
       <a href="chats.html">💬 Chats Personalizados</a>
+      <a href="arquivos.html">📂 Arquivos DOC</a>
     </div>
-
-    <button onclick="logout()">Sair</button>
   </div>
 
   <script type="module">
