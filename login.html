@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - QG 007 Digital</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h1>Bem-vindo ao QG</h1>
+    <form id="login-form">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="Digite seu e-mail" required />
+
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="Digite sua senha" required />
+
+      <button type="submit">Entrar</button>
+
+      <div class="esqueci-senha">
+        <a href="#">Esqueci minha senha</a>
+      </div>
+
+      <p id="mensagem" style="text-align:center; margin-top:20px;"></p>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3qLC0mq0snYDVjgcMqlxpotgALTHd0uY",
+      authDomain: "qg007-b890a.firebaseapp.com",
+      projectId: "qg007-b890a",
+      storageBucket: "qg007-b890a.firebasestorage.app",
+      messagingSenderId: "230480486221",
+      appId: "1:230480486221:web:a232dcd4d9225ab254e104"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById("login-form");
+    const mensagem = document.getElementById("mensagem");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        mensagem.style.color = "#00ff88";
+        mensagem.textContent = "Login realizado com sucesso!";
+        // Redirecionar depois de 1 segundo
+        setTimeout(() => {
+          window.location.href = "area-membros.html";
+        }, 1000);
+      } catch (error) {
+        mensagem.style.color = "#ff5555";
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          mensagem.textContent = "E-mail ou senha incorretos.";
+        } else {
+          mensagem.textContent = "E-mail ou senha incorretos.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
