@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arquivos DOC - QG 007 Digital</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      position: relative;
+    }
+
+    h2 {
+      color: #00ff88;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: block;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 8px;
+      background-color: #00ff88;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #00e07a;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #fff;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="logout-btn" onclick="logout()">Sair</button>
+    <h2>ðŸ“‚ Arquivos para Download</h2>
+
+    <!-- Cada botÃ£o serÃ¡ um PDF diferente -->
+    <button class="btn" onclick="baixarPDF('documento1.pdf')">ðŸ“„ Documento 1</button>
+    <button class="btn" onclick="baixarPDF('documento2.pdf')">ðŸ“„ Documento 2</button>
+    <button class="btn" onclick="baixarPDF('documento3.pdf')">ðŸ“„ Documento 3</button>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3qLC0mq0snYDVjgcMqlxpotgALTHd0uY",
+      authDomain: "qg007-b890a.firebaseapp.com",
+      projectId: "qg007-b890a",
+      storageBucket: "qg007-b890a.firebasestorage.app",
+      messagingSenderId: "230480486221",
+      appId: "1:230480486221:web:a232dcd4d9225ab254e104"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    let userEmail = "";
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        userEmail = user.email;
+      }
+    });
+
+    function logout() {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    async function baixarPDF(fileName) {
+      if (!userEmail) {
+        alert("Erro: usuÃ¡rio nÃ£o autenticado.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3100/download", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            fileName: fileName,
+            userEmail: userEmail
+          })
+        });
+
+        if (!response.ok) throw new Error("Erro ao baixar o PDF");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName.replace(".pdf", "") + "-marcado.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (err) {
+        console.error(err);
+        alert("Falha ao baixar o arquivo.");
+      }
+    }
+  </script>
+</body>
+</html>
+

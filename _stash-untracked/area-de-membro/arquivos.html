@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -66,15 +66,15 @@
     }
   </style>
 </head>
-<body>
+<body>`r`n  <div id="sidebar-root"></div>
   <div class="container">
     <button class="logout-btn" onclick="logout()">Sair</button>
-    <h2>📂 Arquivos para Download</h2>
+    <h2>ðŸ“‚ Arquivos para Download</h2>
 
-    <!-- Cada botão será um PDF diferente -->
-    <button class="btn" onclick="baixarPDF('documento1.pdf')">📄 Documento 1</button>
-    <button class="btn" onclick="baixarPDF('documento2.pdf')">📄 Documento 2</button>
-    <button class="btn" onclick="baixarPDF('documento3.pdf')">📄 Documento 3</button>
+    <!-- Cada botÃ£o serÃ¡ um PDF diferente -->
+    <button class="btn" onclick="baixarPDF('documento1.pdf')">ðŸ“„ Documento 1</button>
+    <button class="btn" onclick="baixarPDF('documento2.pdf')">ðŸ“„ Documento 2</button>
+    <button class="btn" onclick="baixarPDF('documento3.pdf')">ðŸ“„ Documento 3</button>
 
   </div>
 
@@ -111,7 +111,7 @@
 
     async function baixarPDF(fileName) {
       if (!userEmail) {
-        alert("Erro: usuário não autenticado.");
+        alert("Erro: usuÃ¡rio nÃ£o autenticado.");
         return;
       }
 
@@ -143,5 +143,10 @@
       }
     }
   </script>
-</body>
+  <script type="module" src="shared/menu.js"></script>
+
 </html>
+
+
+
+

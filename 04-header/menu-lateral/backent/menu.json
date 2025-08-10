@@ -1,0 +1,40 @@
+{
+  "categories": [
+    {
+      "id": "conta-dark",
+      "label": "Conta Dark",
+      "items": [
+        { "id": "contas",     "label": "Contas",      "href": "01-publico/conta-dark/contas/index.html" },
+        { "id": "configurar", "label": "Configurar",  "href": "01-publico/conta-dark/configurar/index.html" },
+        { "id": "videos",     "label": "Vídeos",      "href": "01-publico/conta-dark/videos/index.html" },
+        { "id": "agendar",    "label": "Agendar",     "href": "01-publico/conta-dark/agendar/index.html" }
+      ]
+    },
+    {
+      "id": "ia",
+      "label": "Ia",
+      "items": [
+        { "id": "chat-ia",      "label": "Chat ia",       "href": "01-publico/ia/chat-ia/index.html" },
+        { "id": "ia-terceiros", "label": "Ia Terceiros",  "href": "01-publico/ia/ia-terceiros/index.html" }
+      ]
+    },
+    {
+      "id": "geral",
+      "label": "Geral",
+      "items": [
+        { "id": "ferramentas",  "label": "Ferramentas",   "href": "01-publico/geral/ferramentas/index.html" },
+        { "id": "sites-pronto", "label": "Sites Pronto",  "href": "01-publico/geral/sites-pronto/index.html" }
+      ]
+    }
+  ],
+  "ui": {
+    "showVoltar": true,
+    "showAdicionar": true,
+    "painelAdm": {
+      "enabled": true,
+      "label": "Painel ADM",
+      "href": "01-publico/admin/index.html",
+      "showCriarCategoria": true
+    }
+  }
+}

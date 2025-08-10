@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QG 007 Digital — Conta Dark</title>
+  <link rel="stylesheet" href="../../css/style.css" />
+  <style>
+    :root{
+      --bg:#0d0d0d; --bg2:#151515; --panel:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --glow:rgba(0,255,136,.25);
+      --verde:#00ff88; --txt:#eee; --txt2:#cfcfcf;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; background:linear-gradient(135deg,var(--bg),#1a1a1a);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      color:var(--txt); display:grid; grid-template-columns:260px 1fr;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      position:sticky; top:0; height:100vh; padding:18px 14px;
+      background:#0f0f10;
+      display:flex; flex-direction:column; gap:10px;
+      border-right:1px solid #222;
+    }
+    .logo{
+      font-weight:900; letter-spacing:.5px; text-transform:uppercase;
+      background:#000; color:#fff; padding:10px 12px; border-radius:12px; text-align:center;
+      border:1px solid #222;
+    }
+
+    /* Dropdown Conta Dark (fechado por padrão) */
+    .dropdown{margin-top:10px}
+    .dd-toggle{
+      width:100%;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px 14px; border-radius:14px;
+      background:#000; color:#fff; border:1px solid rgba(255,255,255,.18);
+      cursor:pointer; font-weight:700;
+      transition:transform .08s ease, background .25s ease;
+    }
+    .dd-toggle:hover{ transform:translateX(2px); background:#0b0b0b }
+    .caret{transition:transform .2s ease}
+    .dropdown.open .caret{ transform:rotate(180deg) }
+
+    .dd-panel{
+      margin-top:8px;
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+      max-height:0; transition:max-height .25s ease;
+    }
+    .dropdown.open .dd-panel{ max-height:420px }
+
+    .nav{ display:flex; flex-direction:column }
+    .nav a{
+      display:block; padding:12px 14px; text-decoration:none;
+      color:#fff; transition:background .2s ease, transform .08s ease;
+    }
+    .nav a + a{ border-top:1px solid rgba(255,255,255,.08) }
+    .nav a:hover{ background:rgba(255,255,255,.08); transform:translateX(2px) }
+    .nav a.active{ background:rgba(255,255,255,.14) }
+
+    .side-foot{margin-top:auto; font-size:12px; color:#aaa}
+
+    /* Conteúdo */
+    .main{display:grid; grid-template-rows:60px 1fr; min-height:100vh}
+    .topbar{
+      display:flex; align-items:center; justify-content:flex-end; gap:14px;
+      padding:0 18px; background:#000; border-bottom:1px solid #222;
+      position:sticky; top:0; z-index:5;
+    }
+    .link{color:#fff; text-decoration:none; border-bottom:1px solid #fff; padding-bottom:2px}
+    .btn-link{background:none; border:none; color:#fff; cursor:pointer; border-bottom:1px solid #fff; padding:0 0 2px}
+    .wrap{padding:22px; display:grid; gap:18px}
+
+    .card{
+      backdrop-filter:blur(14px);
+      background:var(--panel);
+      border:1px solid var(--borda);
+      box-shadow:0 0 20px var(--glow);
+      border-radius:16px; padding:22px;
+    }
+    .card h2{margin:0 0 10px; color:var(--verde); font-size:22px}
+    .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+    label{display:block; font-size:14px; color:var(--txt2); margin-bottom:6px}
+    input[type="text"],input[type="email"],input[type="password"],input[type="file"],textarea{
+      width:100%; background:rgba(255,255,255,.08); border:1px solid var(--borda);
+      border-radius:10px; color:#fff; padding:12px; outline:none;
+    }
+    textarea{min-height:90px; resize:vertical}
+    .actions{display:flex; gap:10px; margin-top:12px}
+    .btn{
+      border:none; border-radius:10px; padding:12px 16px; font-weight:700; cursor:pointer;
+      transition:transform .08s ease, background .25s ease;
+    }
+    .btn-primary{background:var(--verde); color:#000}
+    .btn-primary:hover{background:#00e07a; transform:translateY(-2px)}
+    .btn-secondary{background:#444; color:#fff}
+    .btn-secondary:hover{background:#666; transform:translateY(-2px)}
+    .status{font-size:13px; color:#ccc; margin-top:8px; min-height:18px}
+
+    section{display:none}
+    section.active{display:block}
+
+    /* Card de preview do perfil */
+    .perfil-card{ display:flex; gap:12px; align-items:flex-start; margin-top:16px; padding:14px;
+      border:1px solid var(--borda); border-radius:12px; background:rgba(255,255,255,.04); }
+    .perfil-card img{ width:64px; height:64px; border-radius:50%; border:1px solid var(--borda); object-fit:cover }
+    .perfil-meta{ display:grid; gap:6px }
+    .perfil-meta .user{ font-weight:700 }
+    .perfil-meta .bio{ font-size:13px; color:#bbb; white-space:pre-line }
+
+    @media (max-width: 920px){
+      body{grid-template-columns:84px 1fr}
+      .logo{font-size:12px; padding:8px}
+      .dd-toggle{font-size:12px; padding:10px}
+      .nav a{font-size:12px; padding:10px}
+      .grid-2{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR (menu suspenso) -->
+  <aside class="sidebar">
+    <div class="logo">QG 007</div>
+
+    <div class="dropdown" id="menuContaDark">
+      <button class="dd-toggle" id="btnContaDark" aria-expanded="false" aria-controls="listaContaDark">
+        <span>Conta Dark</span>
+        <span class="caret">⌄</span>
+      </button>
+
+      <div class="dd-panel" id="listaContaDark">
+        <nav class="nav">
+          <a href="#tab-inicio"     data-tab="inicio"     class="active" aria-current="page">Início</a>
+          <a href="#tab-config"     data-tab="config">Configurar Conta</a>
+          <a href="#tab-downloads"  data-tab="downloads">Downloads</a>
+          <a href="#tab-edicao"     data-tab="edicao">Edição</a>
+          <a href="#tab-agendador"  data-tab="agendador">Agendador</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="side-foot">v1.0</div>
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="main">
+    <div class="topbar">
+      <a class="link" href="../../area-membros.html">Home</a>
+      <button id="btnSair" class="btn-link" type="button">Sair</button>
+    </div>
+
+    <div class="wrap">
+      <!-- INÍCIO -->
+      <section id="tab-inicio" class="card active">
+        <h2>Início</h2>
+        <p>Bem-vindo ao painel da <strong>Conta Dark</strong>. Abra “Conta Dark” no menu lateral para navegar.</p>
+      </section>
+
+      <!-- CONFIGURAR CONTA (apenas botão Conectar) -->
+      <section id="tab-config" class="card">
+        <h2>Configurar Conta Dark</h2>
+
+        <p style="color:#ccc; margin:8px 0 14px;">
+          Conecte seu Instagram para exibirmos <strong>foto, @, nome e bio</strong> automaticamente (via Graph API).
+        </p>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="btnConectarIG" type="button">Conectar Instagram</button>
+          <button class="btn btn-secondary" id="btnDesconectarIG" type="button">Desconectar</button>
+        </div>
+        <div class="status" id="statusConfig"></div>
+
+        <!-- Preview do perfil -->
+        <div class="perfil-card" id="perfilPreview" style="display:none">
+          <img id="igAvatar" alt="Avatar do Instagram">
+          <div class="perfil-meta">
+            <div class="user"><span id="igAt">@usuario</span></div>
+            <div class="name" id="igName"></div>
+            <div class="bio" id="igBio"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOWNLOADS -->
+      <section id="tab-downloads" class="card">
+        <h2>Downloads em Massa (CSV)</h2>
+      </section>
+
+      <!-- EDIÇÃO -->
+      <section id="tab-edicao" class="card">
+        <h2>Edição (Template Verde)</h2>
+      </section>
+
+      <!-- AGENDADOR -->
+      <section id="tab-agendador" class="card">
+        <h2>Agendador</h2>
+      </section>
+    </div>
+  </main>
+
+  <!-- JS local desta página -->
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

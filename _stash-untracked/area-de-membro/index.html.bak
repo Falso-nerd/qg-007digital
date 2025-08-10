@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ãrea de Membros â€” QG 007 Digital</title>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <style>
+    :root{
+      --bg:#0d0d0d; --bg2:#1a1a1a; --glass:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --glow:rgba(0,255,136,.25);
+      --verde:#00ff88; --txt:#eee; --muted:#bdbdbd;
+      --sbw-closed:68px; --sbw-open:280px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(135deg,var(--bg),var(--bg2));
+      color:var(--txt); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:grid; grid-template-columns:var(--sbw-closed) 1fr; min-height:100%;
+      transition:grid-template-columns .25s ease;
+    }
+    body.sidebar-open{ grid-template-columns:var(--sbw-open) 1fr; }
+
+    /* Sidebar */
+    .sidebar{
+      position:sticky; top:0; height:100vh; padding:12px;
+      background:#0f0f10; border-right:1px solid #222;
+      display:flex; flex-direction:column; gap:12px; overflow:hidden;
+    }
+    .menu-toggle{
+      width:44px; height:44px; border-radius:12px; border:1px solid var(--borda);
+      background:#000; color:#fff; display:grid; place-items:center; cursor:pointer;
+      transition:transform .08s ease, background .2s ease;
+    }
+    .menu-toggle:hover{ transform:translateY(-1px); background:#0b0b0b }
+
+    .logo{
+      margin-top:6px; padding:8px 14px; border-radius:12px; border:1px solid var(--borda);
+      background:#000; font-weight:900; letter-spacing:.5px; text-transform:uppercase;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      opacity:0; transform:translateX(-6px); transition:opacity .2s, transform .2s;
+    }
+    body.sidebar-open .logo{ opacity:1; transform:none; }
+
+    .pill-list{
+      margin-top:6px; display:flex; flex-direction:column; gap:10px;
+      opacity:0; transform:translateX(-8px); transition:opacity .2s, transform .2s, max-height .25s ease;
+      max-height:0;
+    }
+    body.sidebar-open .pill-list{ opacity:1; transform:none; max-height:1000px; }
+
+    .pill{
+      background:#151515; border:1px solid var(--borda); color:#fff;
+      padding:12px 14px; border-radius:14px; display:flex; align-items:center; justify-content:space-between;
+      gap:10px; cursor:pointer; transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .pill:hover{ transform:translateY(-1px); background:#181818; box-shadow:0 0 10px rgba(255,255,255,.04) }
+    .pill .label{ font-weight:700 }
+    .caret{ transition:transform .2s ease }
+
+    .submenu{
+      border-left:2px solid rgba(255,255,255,.08);
+      margin-left:8px; padding-left:8px; display:none;
+    }
+    .submenu a{
+      display:block; color:#fff; text-decoration:none; padding:10px 12px; border-radius:10px;
+      border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04);
+      margin-top:8px; transition:background .2s, transform .08s;
+    }
+    .submenu a:hover{ background:rgba(255,255,255,.08); transform:translateX(2px) }
+
+    .side-foot{margin-top:auto; font-size:12px; color:#aaa}
+
+    /* Main */
+    .main{display:grid; grid-template-rows:60px 1fr; min-height:100vh}
+    .topbar{
+      display:flex; align-items:center; justify-content:flex-end; gap:14px;
+      padding:0 18px; background:#000; border-bottom:1px solid #222; position:sticky; top:0; z-index:5;
+    }
+    .link{color:#fff; text-decoration:none; border-bottom:1px solid #fff; padding-bottom:2px}
+    .btn-link{background:none; border:none; color:#fff; cursor:pointer; border-bottom:1px solid #fff; padding:0 0 2px}
+
+    .wrap{padding:24px; display:grid; gap:18px}
+
+    /* Card central */
+    .center-card{
+      backdrop-filter:blur(14px);
+      background:var(--glass);
+      border:1px solid var(--borda);
+      box-shadow:0 0 20px var(--glow);
+      border-radius:20px; padding:22px;
+    }
+    .top-inline{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .badge-logo{
+      padding:8px 14px; border-radius:12px; border:1px solid var(--borda);
+      background:#000; font-weight:900; letter-spacing:.5px; text-transform:uppercase;
+    }
+    .welcome{ margin:4px 0 6px; font-size:26px; color:var(--verde) }
+    .hello{ margin:0; color:var(--muted); font-size:14px }
+
+    .mascote{
+      border-radius:18px; border:1px solid var(--borda); background:rgba(255,255,255,.04);
+      min-height:260px; display:grid; place-items:center; overflow:hidden;
+    }
+    .mascote img{ max-width:100%; max-height:320px; object-fit:contain }
+
+    .grid{ display:grid; gap:16px; grid-template-columns:1fr; }
+    @media (min-width: 880px){ .grid{ grid-template-columns:1fr 1fr; } }
+    .card{
+      display:flex; flex-direction:column; gap:10px;
+      backdrop-filter:blur(10px); background:rgba(255,255,255,.05);
+      border:1px solid var(--borda); border-radius:14px; padding:18px;
+      transition:transform .08s ease, box-shadow .25s ease, background .25s ease;
+    }
+    .card:hover{ transform:translateY(-2px); box-shadow:0 0 16px var(--glow); background:rgba(255,255,255,.06) }
+    .card h3{margin:0; color:#fff}
+    .card p{margin:0; color:#cfcfcf; font-size:14px}
+    .card a.btn{
+      margin-top:8px; align-self:flex-start; padding:10px 14px; border-radius:10px;
+      background:var(--verde); color:#000; font-weight:800; text-decoration:none; transition:background .25s ease;
+    }
+    .card a.btn:hover{ background:#00e07a }
+  </style>
+</head>
+<body>
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <a class="link" href="index.html">Home</a>
+      <button id="btnSair" class="btn-link" type="button">Sair</button>
+    </div>
+
+    <div class="wrap">
+      <section class="center-card">
+        <div class="top-inline">
+          <div class="badge-logo">QG 007</div>
+        </div>
+        <h2 class="welcome">Bem-vindo ao QG</h2>
+        <p class="hello" id="helloUser"></p>
+
+        <div class="mascote" id="boxMascote">
+          <span style="color:#bbb">GIF do Mascote</span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h3>Ferramentas do QG</h3>
+          <p>Acesse utilitÃ¡rios e automaÃ§Ãµes Ãºteis do QG.</p>
+          <a class="btn" href="geral.html">Abrir Ferramentas</a>
+        </article>
+
+        <article class="card">
+          <h3>Chats Personalizados</h3>
+          <p>Entre nos chats prÃ©-configurados.</p>
+          <a class="btn" href="chats-ia.html">Abrir Chats</a>
+        </article>
+
+        <article class="card">
+          <h3>Arquivos (PDF com marca d'Ã¡gua)</h3>
+          <p>Baixe documentos com marca dâ€™Ã¡gua do seu e-mail.</p>
+          <a class="btn" href="arquivos.html">Abrir Arquivos</a>
+        </article>
+
+        <article class="card">
+          <h3>Conta Dark</h3>
+          <p>Conectar Instagram, Downloads, EdiÃ§Ã£o, Agendador.</p>
+          <a class="btn" href="../conta-dark/home-dark/index.html">Abrir Conta Dark</a>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    // Sidebar
+    const body = document.body;
+    document.getElementById('btnToggle').addEventListener('click', ()=> body.classList.toggle('sidebar-open'));
+    document.addEventListener('click', (e)=>{
+      if (!body.classList.contains('sidebar-open')) return;
+      if (!e.target.closest('.sidebar')) body.classList.remove('sidebar-open');
+    });
+
+    function bindSub(pillId, subId){
+      const pill = document.getElementById(pillId);
+      const sub  = document.getElementById(subId);
+      if(!pill || !sub) return;
+      pill.addEventListener('click', ()=>{
+        const open = sub.style.display === 'block';
+        sub.style.display = open ? 'none' : 'block';
+        const caret = pill.querySelector('.caret');
+        if (caret) caret.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+      });
+    }
+    bindSub('pillDark','subDark');
+    bindSub('pillGeral','subGeral');
+
+    // Firebase Auth (protege rota + sair + libera admin)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3qLC0mq0snYDVjgcMqlxpotgALTHd0uY",
+      authDomain: "qg007-b890a.firebaseapp.com",
+      projectId: "qg007-b890a",
+      storageBucket: "qg007-b890a.firebasestorage.app",
+      messagingSenderId: "230480486221",
+      appId: "1:230480486221:web:a232dcd4d9225ab254e104"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // <<< ajuste aqui sua lista de administradores >>>
+    const ADMIN_EMAILS = ["primeiro.dark.ofc@gmail.com"];
+
+    const $ = (id)=>document.getElementById(id);
+
+    onAuthStateChanged(auth, (user)=>{
+      if(!user){ window.location.href = "login.html"; return; }
+      $("helloUser").textContent = user.displayName
+        ? `OlÃ¡, ${user.displayName}!`
+        : `OlÃ¡, ${user.email}!`;
+
+      // Mostrar a categoria "Painel (Admin)" sÃ³ para admins
+      const isAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+      if (isAdmin) {
+        const btnAdmin = $("pillAdmin");
+        if (btnAdmin) btnAdmin.style.display = "flex";
+      }
+    });
+
+    document.getElementById('btnSair').addEventListener('click', ()=>{
+      signOut(auth).then(()=> window.location.href = "login.html");
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro â€” QG 007 Digital</title>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <style>
+    :root{
+      --bg:#0d0d0d; --bg2:#1a1a1a; --glass:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --glow:rgba(0,255,136,.25);
+      --verde:#00ff88; --txt:#eee; --muted:#bdbdbd; --error:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(135deg,var(--bg),var(--bg2));
+      color:var(--txt); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:grid; place-items:center; padding:24px;
+    }
+
+    .wrap{
+      width:100%; max-width:520px;
+      backdrop-filter:blur(14px);
+      background:var(--glass);
+      border:1px solid var(--borda);
+      box-shadow:0 0 20px var(--glow);
+      border-radius:18px; padding:24px;
+    }
+    .logo{
+      display:inline-block; background:#000; border:1px solid var(--borda);
+      padding:8px 14px; border-radius:12px; font-weight:900; letter-spacing:.6px; text-transform:uppercase;
+    }
+    h1{margin:12px 0 4px; font-size:22px; color:var(--verde)}
+    p.sub{margin:0 0 18px; color:var(--muted); font-size:14px}
+
+    label{display:block; font-size:13px; color:#cfcfcf; margin:12px 0 6px}
+    input{
+      width:100%; padding:12px 14px; border-radius:12px; outline:none; color:#fff;
+      background:rgba(255,255,255,.08); border:1px solid var(--borda);
+    }
+    .row{display:flex; gap:12px}
+    .row > div{flex:1}
+    .check{
+      display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13px; color:#cfcfcf;
+    }
+    .actions{display:flex; gap:10px; margin-top:16px}
+    .btn{
+      border:none; border-radius:12px; padding:12px 16px; font-weight:800; cursor:pointer;
+      transition:transform .08s ease, background .25s ease;
+    }
+    .btn-primary{background:var(--verde); color:#000}
+    .btn-primary:hover{background:#00e07a; transform:translateY(-1px)}
+    .btn-secondary{background:#444; color:#fff}
+    .btn-secondary:hover{background:#666; transform:translateY(-1px)}
+    a.link{color:#fff; text-decoration:none; border-bottom:1px solid #fff; padding-bottom:1px; font-size:13px}
+
+    .status{min-height:20px; font-size:13px; margin-top:10px; color:#ccc}
+    .status.error{color:var(--error)}
+    .foot{margin-top:18px; font-size:13px; color:#aaa; text-align:center}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="logo">QG 007</span>
+    <h1>Criar conta</h1>
+    <p class="sub">Preencha seus dados para acessar a Ãrea de Membros.</p>
+
+    <label for="nome">Nome (opcional)</label>
+    <input id="nome" type="text" placeholder="Como devemos te chamar?" autocomplete="name" />
+
+    <div class="row">
+      <div>
+        <label for="email">E-mail</label>
+        <input id="email" type="email" placeholder="voce@exemplo.com" autocomplete="email" />
+      </div>
+      <div>
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" placeholder="MÃ­nimo 6 caracteres" autocomplete="new-password" />
+      </div>
+    </div>
+
+    <label for="senha2">Confirmar senha</label>
+    <input id="senha2" type="password" placeholder="Repita a senha" autocomplete="new-password" />
+
+    <label class="check">
+      <input id="termos" type="checkbox" />
+      Eu li e concordo com os termos internos do QG.
+    </label>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btnCriar">Criar conta</button>
+      <button class="btn btn-secondary" id="btnLimpar" type="button">Limpar</button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <p class="foot">JÃ¡ tem conta? <a class="link" href="login.html">Entrar</a></p>
+  </main>
+
+  <!-- Firebase Auth -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3qLC0mq0snYDVjgcMqlxpotgALTHd0uY",
+      authDomain: "qg007-b890a.firebaseapp.com",
+      projectId: "qg007-b890a",
+      storageBucket: "qg007-b890a.firebasestorage.app",
+      messagingSenderId: "230480486221",
+      appId: "1:230480486221:web:a232dcd4d9225ab254e104"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Se jÃ¡ estiver logado, manda pra Ã¡rea de membros
+    onAuthStateChanged(auth, (user) => {
+      if (user) window.location.href = "index.html";
+    });
+
+    const $ = (id)=>document.getElementById(id);
+    const status = $("status");
+
+    function setStatus(msg, isError=false){
+      status.textContent = msg || "";
+      status.classList.toggle("error", !!isError);
+    }
+
+    $("btnLimpar").addEventListener("click", ()=>{
+      ["nome","email","senha","senha2"].forEach(id => $(id).value = "");
+      $("termos").checked = false;
+      setStatus("");
+    });
+
+    $("btnCriar").addEventListener("click", async ()=>{
+      const nome  = $("nome").value.trim();
+      const email = $("email").value.trim();
+      const senha = $("senha").value;
+      const senha2= $("senha2").value;
+      const termos= $("termos").checked;
+
+      if(!email || !senha || !senha2){
+        setStatus("Preencha e-mail e senha.", true); return;
+      }
+      if(senha.length < 6){
+        setStatus("A senha precisa ter pelo menos 6 caracteres.", true); return;
+      }
+      if(senha !== senha2){
+        setStatus("As senhas nÃ£o conferem.", true); return;
+      }
+      if(!termos){
+        setStatus("VocÃª precisa aceitar os termos.", true); return;
+      }
+
+      setStatus("Criando conta...");
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, email, senha);
+        if (nome){
+          await updateProfile(cred.user, { displayName: nome });
+        }
+        setStatus("Conta criada! Redirecionando...");
+        window.location.href = "index.html";
+      }catch(err){
+        console.error(err);
+        let msg = "NÃ£o foi possÃ­vel criar sua conta.";
+        if (err.code === "auth/email-already-in-use") msg = "Este e-mail jÃ¡ estÃ¡ em uso.";
+        if (err.code === "auth/invalid-email") msg = "E-mail invÃ¡lido.";
+        if (err.code === "auth/weak-password") msg = "Senha muito fraca.";
+        setStatus(msg, true);
+      }
+    });
+  </script>
+</body>
+</html>
+

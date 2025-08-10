@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sites Pronto — QG 007</title>
+
+  <!-- Componente de menu (universal) -->
+  <link rel="stylesheet" href="../../../../04-header/menu-lateral/frontend/menu.css" />
+
+  <style>
+    :root{
+      --bg:#0d0d0d; --panel:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --verde:#00ff88; --txt:#eee; --txt2:#cfcfcf;
+    }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; min-height:100vh; color:var(--txt);
+      background:linear-gradient(135deg,#0d0d0d,#1a1a1a);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    }
+
+    main{ padding:22px; max-width:1200px; margin:78px auto 30px; }
+
+    .header{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .header h1{ margin:0; color:var(--verde); font-size:26px }
+    .search{
+      display:flex; gap:8px; align-items:center;
+      background:var(--panel); border:1px solid var(--borda); border-radius:12px; padding:8px 10px;
+      flex:1; max-width:520px;
+    }
+    .search input{
+      flex:1; background:transparent; border:none; color:#fff; outline:none; font-size:15px;
+    }
+    .filters{ display:flex; gap:8px; flex-wrap:wrap; }
+    .chip{
+      border:1px solid var(--borda); background:rgba(255,255,255,.05); color:#fff;
+      padding:8px 12px; border-radius:999px; cursor:pointer; font-size:13px;
+    }
+    .chip.active{ background:var(--verde); color:#000; border-color:transparent; }
+
+    .grid{
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:14px;
+    }
+    @media (max-width: 1024px){ .grid{ grid-template-columns:repeat(2, 1fr); } }
+    @media (max-width: 640px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{
+      position:relative; overflow:hidden;
+      background:var(--panel); border:1px solid var(--borda); border-radius:16px;
+    }
+    .thumb{
+      aspect-ratio: 16/9; width:100%;
+      background:#0b0b0b linear-gradient(135deg, rgba(0,255,136,.15), transparent);
+      display:flex; align-items:center; justify-content:center; color:#9fffcf;
+      font-weight:700; letter-spacing:.2px;
+    }
+    .body{ padding:14px }
+    .title{ margin:0 0 6px; font-size:18px; color:#fff }
+    .meta{ margin:0 0 10px; color:#cfcfcf; font-size:13px }
+    .tags{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px }
+    .tag{ font-size:11px; padding:5px 8px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid var(--borda); color:#ddd }
+
+    .actions{ display:flex; gap:8px; }
+    .btn{
+      border:none; border-radius:10px; padding:10px 12px; font-weight:700; cursor:pointer;
+      transition: transform .08s ease, background .25s ease;
+    }
+    .btn:focus{ outline:2px solid var(--verde); outline-offset:2px; }
+    .btn.primary{ background:var(--verde); color:#000 }
+    .btn.primary:hover{ background:#00e07a; transform:translateY(-2px) }
+    .btn.secondary{ background:#444; color:#fff }
+    .btn.secondary:hover{ background:#666; transform:translateY(-2px) }
+
+    .empty{
+      margin-top:28px; padding:18px; border-radius:14px;
+      background:var(--panel); border:1px solid var(--borda); color:#cfcfcf;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MENU UNIVERSAL (inicia fechado, abre no hambúrguer) -->
+  <aside id="qg-sidebar"
+         class="qg-sidebar collapsed"
+         data-menu-src="../../../../04-header/menu-lateral/backent/menu.json">
+    <div class="qg-menu-loading">Carregando menu...</div>
+  </aside>
+
+  <button class="qg-trigger" type="button" aria-label="Abrir menu" title="Abrir menu">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
+
+  <!-- CONTEÚDO -->
+  <main>
+    <div class="header">
+      <h1>Sites Pronto</h1>
+
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.8-3.8M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#9fffcf" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="Buscar por nome, tag ou tecnologia..." />
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="chip active" data-filter="all">Todos</button>
+        <button class="chip" data-filter="landing">Landing Page</button>
+        <button class="chip" data-filter="portfolio">Portfolio</button>
+        <button class="chip" data-filter="loja">Loja</button>
+        <button class="chip" data-filter="blog">Blog</button>
+      </div>
+    </div>
+
+    <div class="grid" id="cards"></div>
+
+    <div class="empty" id="empty" style="display:none;">
+      Nenhum resultado. Tente outra busca ou filtro.
+    </div>
+  </main>
+
+  <!-- JS do menu universal -->
+  <script type="module" src="../../../../04-header/menu-lateral/frontend/menu.js"></script>
+
+  <!-- JS local da página -->
+  <script>
+    const TEMPLATES = [
+      { id:'lp-neo', titulo:'Neo Landing', categoria:'landing', desc:'Landing page moderna para captura e conversão.', tags:['HTML','CSS','JS'], demo:'#', zip:'#' },
+      { id:'port-alpha', titulo:'Alpha Portfólio', categoria:'portfolio', desc:'Portfólio minimalista com grid responsivo.', tags:['HTML','Tailwind'], demo:'#', zip:'#' },
+      { id:'store-lite', titulo:'Store Lite', categoria:'loja', desc:'Layout de vitrine com carrinho (frontend).', tags:['HTML','CSS','JS'], demo:'#', zip:'#' },
+      { id:'blog-pulse', titulo:'Blog Pulse', categoria:'blog', desc:'Blog simples com foco em leitura agradável.', tags:['HTML','CSS'], demo:'#', zip:'#' },
+      { id:'lp-ignite', titulo:'Ignite Landing', categoria:'landing', desc:'Seção de herói + plano de preços + CTA.', tags:['HTML','CSS','JS'], demo:'#', zip:'#' },
+      { id:'port-vibe', titulo:'Vibe Portfólio', categoria:'portfolio', desc:'Galeria com filtros e detalhe de projetos.', tags:['HTML','CSS'], demo:'#', zip:'#' }
+    ];
+
+    const elCards = document.getElementById('cards');
+    const elEmpty = document.getElementById('empty');
+    const elQ = document.getElementById('q');
+    const elFilters = document.getElementById('filters');
+
+    function makeCard(t){
+      const root = document.createElement('article');
+      root.className = 'card';
+      root.dataset.cat = t.categoria;
+      root.innerHTML = `
+        <div class="thumb">Preview ${t.titulo}</div>
+        <div class="body">
+          <h3 class="title">${t.titulo}</h3>
+          <p class="meta">${t.desc}</p>
+          <div class="tags">
+            ${t.tags.map(x=>`<span class="tag">${x}</span>`).join('')}
+          </div>
+          <div class="actions">
+            <a class="btn secondary" href="${t.demo}" target="_blank" rel="noopener">Ver Demo</a>
+            <a class="btn primary" href="${t.zip}" download>Baixar ZIP</a>
+          </div>
+        </div>
+      `;
+      return root;
+    }
+
+    function render(list){
+      elCards.innerHTML = '';
+      list.forEach(t => elCards.appendChild(makeCard(t)));
+      elEmpty.style.display = list.length ? 'none' : 'block';
+    }
+
+    let currentCat = 'all';
+    function applyFilters(){
+      const q = (elQ.value || '').toLowerCase().trim();
+      const out = TEMPLATES.filter(t=>{
+        const catOk = currentCat==='all' ? true : t.categoria===currentCat;
+        const text = `${t.titulo} ${t.desc} ${t.tags.join(' ')}`.toLowerCase();
+        const qOk = !q || text.includes(q);
+        return catOk && qOk;
+      });
+      render(out);
+    }
+
+    elQ.addEventListener('input', applyFilters);
+    elFilters.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.chip'); if(!btn) return;
+      [...elFilters.children].forEach(c=>c.classList.remove('active'));
+      btn.classList.add('active');
+      currentCat = btn.dataset.filter || 'all';
+      applyFilters();
+    });
+
+    render(TEMPLATES);
+  </script>
+</body>
+</html>

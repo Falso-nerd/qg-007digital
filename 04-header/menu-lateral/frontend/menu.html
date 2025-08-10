@@ -1,0 +1,17 @@
+<!-- 04-header/menu-lateral/frontend/menu.html -->
+<link rel="stylesheet" href="./menu.css" />
+
+<!-- Sidebar: começa fechada (classe 'collapsed' será reforçada pelo JS) -->
+<aside id="qg-sidebar" class="qg-sidebar collapsed" data-menu-src="../backent/menu.json">
+  <div class="qg-menu-loading">Carregando menu...</div>
+</aside>
+
+<!-- Botão hambúrguer (fica visível apenas quando o menu está FECHADO) -->
+<button class="qg-trigger" type="button" aria-label="Abrir menu" title="Abrir menu">
+  <span class="bar"></span>
+  <span class="bar"></span>
+  <span class="bar"></span>
+</button>
+
+<!-- Script do componente -->
+<script type="module" src="./menu.js"></script>

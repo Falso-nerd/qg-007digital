@@ -1,0 +1,171 @@
+/* 04-header/menu-lateral/frontend/menu.css */
+
+/* ===== Sidebar (agora em modo overlay, fixo) ===== */
+.qg-sidebar{
+  position: fixed;
+  left: 0; top: 0;
+  width: 260px;
+  height: 100vh;
+  background:#0f0f10;
+  color:#eee;
+  border-right:1px solid #222;
+  display:flex;
+  flex-direction:column;
+  padding:16px 12px;
+  z-index: 1000;
+  transform: translateX(0);
+  transition: transform .25s ease;
+}
+
+/* Fechado por classe (JS controla) */
+.qg-sidebar.collapsed{
+  transform: translateX(-110%);
+}
+
+/* Loading inicial */
+.qg-menu-loading{
+  color:#bbb;
+  font-size:14px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+}
+
+/* Título/Logo simples (opcional) */
+.qg-brand{
+  font-weight:900;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  background:#000;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:12px;
+  text-align:center;
+  border:1px solid #222;
+  margin-bottom:10px;
+}
+
+/* Grupo de categorias */
+.qg-menu{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:8px;
+}
+
+/* Cabeçalho da categoria (accordion button) */
+.qg-cat{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:12px;
+  background:#000;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  cursor:pointer;
+  font-weight:700;
+  transition:transform .08s ease, background .25s ease;
+}
+.qg-cat:hover{ transform:translateX(2px); background:#0b0b0b; }
+.qg-cat .qg-caret{ transition: transform .2s ease; }
+.qg-cat[aria-expanded="true"] .qg-caret{ transform: rotate(180deg); }
+
+/* Painel da categoria (área que abre/fecha) */
+.qg-panel{
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  border-radius:12px;
+  max-height:0;
+  transition:max-height .25s ease;
+}
+.qg-panel.open{ max-height: 520px; }
+
+.qg-items{
+  display:flex; flex-direction:column;
+}
+
+/* Link de aba */
+.qg-item{
+  display:block;
+  padding:12px 14px;
+  color:#fff;
+  text-decoration:none;
+  transition: background .2s ease, transform .08s ease;
+}
+.qg-item + .qg-item{ border-top:1px solid rgba(255,255,255,.08); }
+.qg-item:hover{ background:rgba(255,255,255,.08); transform:translateX(2px); }
+.qg-item.active{ background:rgba(255,255,255,.14); }
+
+/* Ações dentro do painel (Voltar / Adicionar) */
+.qg-actions{
+  display:flex; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.08);
+}
+.qg-btn{
+  appearance:none; border:none; cursor:pointer;
+  border-radius:10px; padding:10px 12px; font-weight:700;
+  transition: transform .08s ease, background .25s ease;
+}
+.qg-btn:focus{ outline:2px solid #00ff88; outline-offset:2px; }
+.qg-btn.secondary{ background:#444; color:#fff; }
+.qg-btn.secondary:hover{ background:#666; transform:translateY(-2px); }
+.qg-btn.primary{ background:#00ff88; color:#000; }
+.qg-btn.primary:hover{ background:#00e07a; transform:translateY(-2px); }
+
+/* Rodapé / versão */
+.qg-foot{
+  margin-top:auto;
+  font-size:12px;
+  color:#aaa;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 4px;
+  opacity:.9;
+}
+
+/* Painel ADM */
+.qg-adm{
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+  overflow:hidden;
+}
+.qg-adm a{
+  display:block; padding:12px 14px; color:#fff; text-decoration:none;
+}
+.qg-adm a:hover{ background:rgba(255,255,255,.08); }
+.qg-adm-actions{
+  display:flex; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,.08);
+}
+
+/* ===== Botão hambúrguer (ícone flutuante) ===== */
+.qg-trigger{
+  position: fixed;
+  left: 12px; top: 12px;
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.6);
+  border: 1px solid rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center;
+  z-index: 1001;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: transform .08s ease, background .25s ease;
+}
+.qg-trigger:hover{ transform: translateY(-1px); background: rgba(0,0,0,.75); }
+.qg-trigger .bar{
+  width: 24px; height: 2px; background: #eee; display:block; border-radius: 2px;
+}
+.qg-trigger .bar + .bar{ margin-top: 5px; }
+
+/* Esconde o gatilho quando o menu está aberto */
+.qg-sidebar:not(.collapsed) ~ .qg-trigger{ display:none; }
+
+/* Utilitários */
+.hidden{ display:none !important; }
+
+/* Responsivo básico */
+@media (max-width: 920px){
+  .qg-sidebar{ width: 84vw; max-width: 320px; }
+}

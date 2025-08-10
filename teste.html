@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teste — Menu Lateral Universal</title>
+
+  <!-- CSS do componente universal do menu -->
+  <link rel="stylesheet" href="./04-header/menu-lateral/frontend/menu.css" />
+
+  <!-- Estilo mínimo só do conteúdo de teste -->
+  <style>
+    :root{
+      --bg:#0d0d0d; --panel:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --verde:#00ff88; --txt:#eee;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; min-height:100vh; color:var(--txt);
+      background:linear-gradient(135deg,#0d0d0d,#1a1a1a);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    }
+    main{ padding:22px; }
+    .card{
+      max-width: 860px;
+      margin: 78px auto 24px; /* espaço pro botão hambúrguer no topo esquerdo */
+      backdrop-filter:blur(14px);
+      background:var(--panel);
+      border:1px solid var(--borda);
+      border-radius:16px; padding:22px;
+      box-shadow:0 0 20px rgba(0,255,136,.25);
+    }
+    .card h1{ margin:0 0 12px; color:var(--verde); font-size:26px }
+    .card p{ margin:0 0 10px; color:#cfcfcf }
+    .card code{ background:rgba(255,255,255,.08); padding:2px 6px; border-radius:6px }
+    ul{ margin:8px 0 0 18px; color:#cfcfcf }
+  </style>
+</head>
+<body>
+
+  <!-- COMPONENTE UNIVERSAL: começa FECHADO e abre pelo hambúrguer -->
+  <aside id="qg-sidebar"
+         class="qg-sidebar collapsed"
+         data-menu-src="./04-header/menu-lateral/backent/menu.json">
+    <div class="qg-menu-loading">Carregando menu...</div>
+  </aside>
+
+  <!-- Botão hambúrguer (do próprio componente, sem imagem externa) -->
+  <button class="qg-trigger" type="button" aria-label="Abrir menu" title="Abrir menu">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <!-- CONTEÚDO DE TESTE -->
+  <main>
+    <section class="card">
+      <h1>Preview do Menu Lateral Universal</h1>
+      <p>Menu à esquerda é um componente único carregado de
+        <code>04-header/menu-lateral/</code> e lendo
+        <code>04-header/menu-lateral/backent/menu.json</code>.
+      </p>
+      <p><strong>Como validar:</strong></p>
+      <ul>
+        <li>O menu inicia <em>fechado</em>. Clique no ícone no topo esquerdo para abrir.</li>
+        <li>Ao abrir, o ícone some. Feche clicando fora do menu ou apertando <strong>ESC</strong>.</li>
+        <li>Os itens/categorias vêm do <code>menu.json</code>. Editou lá → muda aqui.</li>
+        <li>Para ver botões de Admin (Adicionar/Criar Categoria), no console execute:<br>
+          <code>localStorage.setItem('qg.isAdmin','"1"'); location.reload();</code></li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- JS do componente universal do menu -->
+  <script type="module" src="./04-header/menu-lateral/frontend/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QG • Login</title>
+</head>
+<body>
+  <section style="padding:24px; max-width:420px">
+    <h1>Login</h1>
+    <p>(Aqui vai seu formulário de login futuramente)</p>
+    <!-- Exemplo de placeholders -->
+    <form onsubmit="return false;">
+      <label>Email</label>
+      <input type="email" style="width:100%;padding:8px;margin:6px 0" />
+      <label>Senha</label>
+      <input type="password" style="width:100%;padding:8px;margin:6px 0" />
+      <button style="padding:10px 16px;margin-top:8px">Entrar</button>
+    </form>
+  </section>
+
+  <!-- Firebase (necessário nesta página) -->
+  <script src="/00-login/login/backend/firebase-init.js" type="module"></script>
+  <script src="/00-login/login/backend/auth-role.js" type="module"></script>
+
+  <!-- Auto menu -->
+  <script src="/04-header/menu-lateral/frontend/auto-menu.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login â€” QG 007 Digital</title>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <style>
+    :root{
+      --bg:#0d0d0d; --bg2:#1a1a1a; --glass:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --glow:rgba(0,255,136,.25);
+      --verde:#00ff88; --txt:#eee; --muted:#bdbdbd; --error:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(135deg,var(--bg),var(--bg2));
+      color:var(--txt); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:grid; place-items:center; padding:24px;
+    }
+
+    .wrap{
+      width:100%; max-width:420px;
+      backdrop-filter:blur(14px);
+      background:var(--glass);
+      border:1px solid var(--borda);
+      box-shadow:0 0 20px var(--glow);
+      border-radius:18px; padding:24px;
+    }
+    .logo{
+      display:inline-block; background:#000; border:1px solid var(--borda);
+      padding:8px 14px; border-radius:12px; font-weight:900; letter-spacing:.6px; text-transform:uppercase;
+    }
+    h1{margin:12px 0 4px; font-size:22px; color:var(--verde)}
+    p.sub{margin:0 0 18px; color:var(--muted); font-size:14px}
+
+    label{display:block; font-size:13px; color:#cfcfcf; margin:12px 0 6px}
+    input{
+      width:100%; padding:12px 14px; border-radius:12px; outline:none; color:#fff;
+      background:rgba(255,255,255,.08); border:1px solid var(--borda);
+    }
+    .actions{display:flex; gap:10px; margin-top:16px}
+    .btn{
+      border:none; border-radius:12px; padding:12px 16px; font-weight:800; cursor:pointer;
+      transition:transform .08s ease, background .25s ease;
+    }
+    .btn-primary{background:var(--verde); color:#000}
+    .btn-primary:hover{background:#00e07a; transform:translateY(-1px)}
+    .btn-secondary{background:#444; color:#fff}
+    .btn-secondary:hover{background:#666; transform:translateY(-1px)}
+
+    .row{display:flex; justify-content:space-between; align-items:center; margin-top:10px}
+    a.link{color:#fff; text-decoration:none; border-bottom:1px solid #fff; padding-bottom:1px; font-size:13px}
+    .status{min-height:20px; font-size:13px; margin-top:10px; color:#ccc}
+    .status.error{color:var(--error)}
+    .foot{margin-top:18px; font-size:13px; color:#aaa; text-align:center}
+
+    /* pequeno aviso embaixo */
+    .tiny{font-size:11px; color:#9c9c9c; margin-top:8px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="logo">QG 007</span>
+    <h1>Entrar</h1>
+    <p class="sub">Acesse sua conta para entrar na Ãrea de Membros.</p>
+
+    <label for="email">E-mail</label>
+    <input id="email" type="email" placeholder="voce@exemplo.com" autocomplete="email" />
+
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" placeholder="********" autocomplete="current-password" />
+
+    <div class="row">
+      <a class="link" href="#" id="esqueci">Esqueci a senha</a>
+      <a class="link" href="cadastro.html">Criar conta</a>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btnEntrar">Entrar</button>
+      <button class="btn btn-secondary" id="btnLimpar" type="button">Limpar</button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <p class="tiny">Ao entrar, vocÃª concorda com os termos internos do QG.</p>
+  </main>
+
+  <!-- Firebase Auth -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3qLC0mq0snYDVjgcMqlxpotgALTHd0uY",
+      authDomain: "qg007-b890a.firebaseapp.com",
+      projectId: "qg007-b890a",
+      storageBucket: "qg007-b890a.firebasestorage.app",
+      messagingSenderId: "230480486221",
+      appId: "1:230480486221:web:a232dcd4d9225ab254e104"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Se jÃ¡ estiver logado, manda pra Ã¡rea de membros
+    onAuthStateChanged(auth, (user) => {
+      if (user) window.location.href = "index.html";
+    });
+
+    const $ = (id)=>document.getElementById(id);
+    const status = $("status");
+
+    function setStatus(msg, isError=false){
+      status.textContent = msg || "";
+      status.classList.toggle("error", !!isError);
+    }
+
+    $("btnLimpar").addEventListener("click", ()=>{
+      $("email").value = "";
+      $("senha").value = "";
+      setStatus("");
+    });
+
+    $("btnEntrar").addEventListener("click", async ()=>{
+      const email = $("email").value.trim();
+      const senha = $("senha").value;
+      if(!email || !senha){ setStatus("Preencha e-mail e senha.", true); return; }
+
+      setStatus("Entrando...");
+      try{
+        await signInWithEmailAndPassword(auth, email, senha);
+        setStatus("Ok! Redirecionando...");
+        window.location.href = "index.html"; // Ã¡rea de membros nesta pasta
+      }catch(err){
+        console.error(err);
+        let msg = "NÃ£o foi possÃ­vel entrar.";
+        if (err.code === "auth/invalid-email") msg = "E-mail invÃ¡lido.";
+        if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") msg = "E-mail ou senha incorretos.";
+        if (err.code === "auth/too-many-requests") msg = "Muitas tentativas. Tente novamente mais tarde.";
+        setStatus(msg, true);
+      }
+    });
+
+    $("esqueci").addEventListener("click", async (e)=>{
+      e.preventDefault();
+      const email = prompt("Digite o e-mail para redefiniÃ§Ã£o de senha:");
+      if(!email) return;
+      setStatus("Enviando e-mail de redefiniÃ§Ã£o...");
+      try{
+        await sendPasswordResetEmail(auth, email);
+        setStatus("Enviamos um e-mail com instruÃ§Ãµes de redefiniÃ§Ã£o.");
+      }catch(err){
+        console.error(err);
+        let msg = "NÃ£o foi possÃ­vel enviar o e-mail.";
+        if (err.code === "auth/invalid-email") msg = "E-mail invÃ¡lido.";
+        if (err.code === "auth/user-not-found") msg = "NÃ£o encontramos usuÃ¡rio com esse e-mail.";
+        setStatus(msg, true);
+      }
+    });
+  </script>
+</body>
+</html>
+
