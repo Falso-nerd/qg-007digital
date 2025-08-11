@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Área de Membros — QG 007</title>
+
+  <!-- Menu universal -->
+  <link rel="stylesheet" href="../../../04-header/menu-lateral/frontend/menu.css" />
+
+  <style>
+    :root{
+      --bg:#0d0d0d; --panel:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --verde:#00ff88; --txt:#eee; --txt2:#cfcfcf;
+    }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; min-height:100vh; color:var(--txt);
+      background:linear-gradient(135deg,#0d0d0d,#1a1a1a);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    }
+
+    /* topo simples */
+    .topbar{
+      position:sticky; top:0; z-index:5;
+      display:flex; align-items:center; justify-content:flex-end; gap:14px;
+      height:56px; padding:0 18px; background:#000; border-bottom:1px solid #222;
+    }
+    .link{color:#fff; text-decoration:none; border-bottom:1px solid #fff; padding-bottom:2px}
+    .btn-link{background:none; border:none; color:#fff; cursor:pointer; border-bottom:1px solid #fff; padding:0 0 2px}
+
+    main{ padding:22px; max-width:1200px; margin:12px auto 30px; }
+
+    .welcome{
+      backdrop-filter:blur(14px);
+      background:var(--panel);
+      border:1px solid var(--borda);
+      border-radius:16px; padding:18px; margin-bottom:16px;
+      box-shadow:0 0 20px rgba(0,255,136,.25);
+    }
+    .welcome h1{ margin:0 0 6px; color:var(--verde); font-size:26px }
+    .welcome p{ margin:0; color:var(--txt2) }
+
+    .grid{
+      display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+    }
+    @media (max-width: 1024px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+    @media (max-width: 640px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{
+      background:var(--panel); border:1px solid var(--borda); border-radius:16px; overflow:hidden;
+      display:flex; flex-direction:column;
+    }
+    .card .thumb{
+      aspect-ratio: 16/9; display:flex; align-items:center; justify-content:center;
+      background:#0b0b0b linear-gradient(135deg, rgba(0,255,136,.12), transparent);
+      color:#9fffcf; font-weight:800;
+    }
+    .card .body{ padding:14px; flex:1 }
+    .card .title{ margin:0 0 6px; color:#fff; font-size:18px }
+    .card .meta{ margin:0 0 12px; color:#cfcfcf; font-size:13px }
+    .actions{ display:flex; gap:8px; padding:0 14px 14px }
+    .btn{
+      border:none; border-radius:10px; padding:10px 12px; font-weight:800; cursor:pointer;
+    }
+    .btn.primary{ background:var(--verde); color:#000 }
+    .btn.primary:hover{ background:#00e07a }
+    .btn.secondary{ background:#444; color:#fff }
+    .btn.secondary:hover{ background:#666 }
+  </style>
+</head>
+<body>
+
+  <!-- MENU UNIVERSAL (começa fechado; abre no hambúrguer) -->
+  <aside id="qg-sidebar"
+         class="qg-sidebar collapsed"
+         data-menu-src="../../../04-header/menu-lateral/backent/menu.json">
+    <div class="qg-menu-loading">Carregando menu...</div>
+  </aside>
+
+  <button class="qg-trigger" type="button" aria-label="Abrir menu" title="Abrir menu">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
+
+  <!-- TOPO -->
+  <div class="topbar">
+    <a class="link" href="#">Home</a>
+    <button id="btnSair" class="btn-link" type="button">Sair</button>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <main>
+    <section class="welcome">
+      <h1>Bem-vindo(a) ao QG</h1>
+      <p id="userInfo">Carregando seu perfil...</p>
+    </section>
+
+    <section class="grid" id="atalhos">
+      <!-- Conta Dark -->
+      <article class="card">
+        <div class="thumb">Conta Dark</div>
+        <div class="body">
+          <h3 class="title">Conta Dark</h3>
+          <p class="meta">Gerencie seu perfil dark, descrições, downloads e agendamentos.</p>
+        </div>
+        <div class="actions">
+          <!-- Ajuste o destino quando sua home da Conta Dark estiver definida -->
+          <a class="btn primary" href="../../conta-dark/configurar/index.html">Abrir</a>
+          <a class="btn secondary" href="../../conta-dark/videos/index.html">Vídeos</a>
+        </div>
+      </article>
+
+      <!-- Sites Pronto -->
+      <article class="card">
+        <div class="thumb">Sites Pronto</div>
+        <div class="body">
+          <h3 class="title">Sites Pronto</h3>
+          <p class="meta">Modelos prontos para publicar. Admin pode editar cards inline.</p>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="../../geral/sites-pronto/frontend/index.html">Abrir</a>
+          <a class="btn secondary" href="../../geral/sites-pronto/frontend/index.html#novo">Ver novidades</a>
+        </div>
+      </article>
+
+      <!-- Ferramentas -->
+      <article class="card">
+        <div class="thumb">Ferramentas</div>
+        <div class="body">
+          <h3 class="title">Ferramentas</h3>
+          <p class="meta">Acesso às ferramentas úteis do seu QG.</p>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="../../geral/ferramentas/index.html">Abrir</a>
+          <button class="btn secondary" type="button" onclick="alert('Em breve')">Em breve</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Menu universal JS -->
+  <script type="module" src="../../../04-header/menu-lateral/frontend/menu.js"></script>
+
+  <!-- Firebase: checagem de sessão e Sair -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3qLC0mq0snYDVjgcMqlxpotgALTHd0uY",
+      authDomain: "qg007-b890a.firebaseapp.com",
+      projectId: "qg007-b890a",
+      storageBucket: "qg007-b890a.firebasestorage.app",
+      messagingSenderId: "230480486221",
+      appId: "1:230480486221:web:a232dcd4d9225ab254e104"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Caminho do login (ajuste se mudar nome/estrutura)
+    const LOGIN = "../../../00-login/login/frontend/inicial.html";
+
+    const $ = (s, r=document) => r.querySelector(s);
+
+    onAuthStateChanged(auth, (user)=>{
+      if(!user){
+        location.href = LOGIN;
+        return;
+      }
+      // mostra e-mail do usuário logado
+      $("#userInfo").textContent = `Logado como: ${user.email || 'usuário'}`;
+    });
+
+    $("#btnSair").addEventListener("click", async ()=>{
+      try{
+        await signOut(auth);
+      }catch{}
+      // limpar flag admin só por higiene visual
+      localStorage.removeItem("qg.isAdmin");
+      location.href = LOGIN;
+    });
+  </script>
+</body>
+</html>

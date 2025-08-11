@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IA de Terceiros — QG 007</title>
+
+  <!-- Menu universal -->
+  <link rel="stylesheet" href="../../../../04-header/menu-lateral/frontend/menu.css" />
+
+  <style>
+    :root{
+      --bg:#0d0d0d; --panel:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --verde:#00ff88; --txt:#eee; --txt2:#cfcfcf;
+      --danger:#ff3b3b;
+    }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; min-height:100vh; color:var(--txt);
+      background:linear-gradient(135deg,#0d0d0d,#1a1a1a);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    }
+
+    .topbar{
+      position:sticky; top:0; z-index:5;
+      display:flex; align-items:center; justify-content:flex-end; gap:14px;
+      height:56px; padding:0 18px; background:#000; border-bottom:1px solid #222;
+    }
+    .link{color:#fff; text-decoration:none; border-bottom:1px solid #fff; padding-bottom:2px}
+    .btn-link{background:none; border:none; color:#fff; cursor:pointer; border-bottom:1px solid #fff; padding:0 0 2px}
+
+    main{ padding:22px; max-width:1200px; margin:12px auto 30px; }
+
+    .header{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .header h1{ margin:0; color:var(--verde); font-size:26px }
+
+    .search{
+      display:flex; gap:8px; align-items:center;
+      background:var(--panel); border:1px solid var(--borda); border-radius:12px; padding:8px 10px;
+      flex:1; max-width:520px;
+    }
+    .search input{
+      flex:1; background:transparent; border:none; color:#fff; outline:none; font-size:15px;
+    }
+
+    .filters{ display:flex; gap:8px; flex-wrap:wrap; }
+    .chip{
+      border:1px solid var(--borda); background:rgba(255,255,255,.05); color:#fff;
+      padding:8px 12px; border-radius:999px; cursor:pointer; font-size:13px;
+    }
+    .chip.active{ background:var(--verde); color:#000; border-color:transparent; }
+
+    .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:14px; }
+    @media (max-width: 1024px){ .grid{ grid-template-columns:repeat(2, 1fr); } }
+    @media (max-width: 640px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{
+      position:relative; overflow:hidden;
+      background:var(--panel); border:1px solid var(--borda); border-radius:16px;
+      display:flex; flex-direction:column;
+    }
+    .thumb{
+      aspect-ratio: 16/9; width:100%;
+      background:#0b0b0b linear-gradient(135deg, rgba(0,255,136,.15), transparent);
+      display:flex; align-items:center; justify-content:center; color:#9fffcf;
+      font-weight:700; letter-spacing:.2px;
+    }
+    .body{ padding:14px; flex:1 }
+    .title{ margin:0 0 6px; font-size:18px; color:#fff }
+    .meta{ margin:0 0 10px; color:#cfcfcf; font-size:13px }
+    .tags{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px }
+    .tag{ font-size:11px; padding:5px 8px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid var(--borda); color:#ddd }
+
+    .actions{ display:flex; gap:8px; padding:0 14px 14px }
+    .btn{
+      border:none; border-radius:10px; padding:10px 12px; font-weight:700; cursor:pointer;
+      transition: transform .08s ease, background .25s ease;
+    }
+    .btn.primary{ background:var(--verde); color:#000 }
+    .btn.primary:hover{ background:#00e07a; transform:translateY(-2px) }
+
+    .empty{
+      margin-top:28px; padding:18px; border-radius:14px;
+      background:var(--panel); border:1px solid var(--borda); color:#cfcfcf;
+    }
+
+    /* ===== Painel Admin (embutido) ===== */
+    .ci-fab, .ci-fab-add{
+      position: fixed; right: 18px; z-index: 1100;
+      border: none; border-radius: 999px; padding: 12px 16px; font-weight: 800;
+      background: #00ff88; color:#000; cursor:pointer; box-shadow:0 12px 30px rgba(0,0,0,.35);
+      transition: transform .08s ease, background .25s ease;
+    }
+    .ci-fab{ bottom: 18px; }
+    .ci-fab-add{ bottom: 70px; }
+    .ci-fab:hover, .ci-fab-add:hover{ background:#00e07a; transform: translateY(-2px); }
+
+    .ci-badge{
+      position:absolute; right:10px; top:10px; z-index:20; display:none;
+    }
+    .ci-badge .btn{
+      border:none; border-radius:8px; padding:8px 10px; font-weight:700; cursor:pointer;
+      background:rgba(0,0,0,.75); color:#fff; border:1px solid rgba(255,255,255,.18);
+      backdrop-filter:blur(6px);
+    }
+    .ci-on .ci-badge{ display:block; }
+
+    .ci-back{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; z-index:1200; }
+    .ci-modal{
+      position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+      width:min(680px,92vw); background:rgba(20,20,20,.9); color:#eee;
+      border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:16px;
+      backdrop-filter:blur(10px); display:none; z-index:1201;
+    }
+    .ci-modal h3{ margin:0 0 10px; color:#9fffcf }
+    .ci-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .ci-grid .full{ grid-column:1/-1; }
+    .ci-field{ display:flex; flex-direction:column; gap:6px; }
+    .ci-field label{ font-size:13px; color:#cfcfcf }
+    .ci-field input, .ci-field textarea{
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      color:#fff; padding:10px; border-radius:10px; outline:none;
+    }
+    .ci-actions{ display:flex; gap:8px; margin-top:12px; justify-content:flex-end; flex-wrap:wrap; }
+    .ci-btn{ border:none; border-radius:10px; padding:10px 12px; font-weight:800; cursor:pointer; }
+    .ci-btn.primary{ background:#00ff88; color:#000; }
+    .ci-btn.primary:hover{ background:#00e07a; }
+    .ci-btn.secondary{ background:#444; color:#fff; }
+    .ci-btn.secondary:hover{ background:#666; }
+    .ci-btn.danger{ background:var(--danger); color:#fff; }
+    .ci-btn.danger:hover{ filter:brightness(1.05); }
+  </style>
+</head>
+<body>
+
+  <!-- MENU UNIVERSAL (inicia fechado) -->
+  <aside id="qg-sidebar"
+         class="qg-sidebar collapsed"
+         data-menu-src="../../../../04-header/menu-lateral/backent/menu.json">
+    <div class="qg-menu-loading">Carregando menu...</div>
+  </aside>
+
+  <button class="qg-trigger" type="button" aria-label="Abrir menu" title="Abrir menu">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
+
+  <!-- TOPO -->
+  <div class="topbar">
+    <a class="link" href="../../../area-membro/front-ent/index.html">Home</a>
+    <button id="btnSair" class="btn-link" type="button">Sair</button>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <main>
+    <div class="header">
+      <h1>IA de Terceiros</h1>
+
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.8-3.8M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#9fffcf" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="Buscar por nome, tag ou provedor..." />
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="chip active" data-filter="all">Todos</button>
+        <button class="chip" data-filter="openai">OpenAI</button>
+        <button class="chip" data-filter="google">Google</button>
+        <button class="chip" data-filter="anthropic">Anthropic</button>
+        <button class="chip" data-filter="meta">Meta</button>
+        <button class="chip" data-filter="outros">Outros</button>
+      </div>
+    </div>
+
+    <div class="grid" id="cards"></div>
+
+    <div class="empty" id="empty" style="display:none;">
+      Nenhum resultado. Tente outra busca ou filtro.
+    </div>
+  </main>
+
+  <!-- Menu universal JS -->
+  <script type="module" src="../../../../04-header/menu-lateral/frontend/menu.js"></script>
+
+  <!-- JS local (catálogo + busca/filtros + persistência) -->
+  <script>
+    (function(){
+      // chaves EXCLUSIVAS para “IA de Terceiros”
+      var OV_KEY   = 'iaterc.catalog.overrides';
+      var ADD_KEY  = 'iaterc.catalog.created';
+      var HIDE_KEY = 'iaterc.catalog.hiddenIds';
+
+      function lsGet(k, d){ try{ var v=localStorage.getItem(k); return v? JSON.parse(v): d; }catch(e){ return d; } }
+      function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+      // catálogo base
+      var APIS = [
+        { id:'gpt-4o',     titulo:'GPT-4o',        categoria:'openai',    desc:'Modelo multimodal da OpenAI.',               tags:['chat','vision'], usar:'https://chat.openai.com/' },
+        { id:'gpt-4-mini', titulo:'GPT-4o mini',   categoria:'openai',    desc:'Versão leve para custo/latência menores.',  tags:['barato','rápido'], usar:'https://chat.openai.com/' },
+        { id:'gemini',     titulo:'Gemini 1.5',    categoria:'google',    desc:'Modelos multimodais do Google.',            tags:['google','ml'], usar:'https://gemini.google.com/' },
+        { id:'claude',     titulo:'Claude 3.5',    categoria:'anthropic', desc:'Foco em segurança e raciocínio.',           tags:['anthropic'], usar:'https://claude.ai/' },
+        { id:'llama',      titulo:'Llama 3',       categoria:'meta',      desc:'Ecossistema open da Meta.',                  tags:['open','local'], usar:'https://www.meta.ai/' },
+        { id:'perplexity', titulo:'Perplexity',     categoria:'outros',    desc:'Busca + geração com fontes citadas.',        tags:['search','rags'], usar:'https://www.perplexity.ai/' }
+      ];
+
+      // injeta criados (persistidos) antes dos defaults
+      var CREATED_ON_LOAD = lsGet(ADD_KEY, []);
+      if (Array.isArray(CREATED_ON_LOAD) && CREATED_ON_LOAD.length){
+        APIS = CREATED_ON_LOAD.concat(APIS);
+      }
+
+      var elCards = document.getElementById('cards');
+      var elEmpty = document.getElementById('empty');
+      var elQ = document.getElementById('q');
+      var elFilters = document.getElementById('filters');
+      var currentCat = 'all';
+
+      function hiddenIds(){ return lsGet(HIDE_KEY, []); }
+      function hideId(id){
+        var arr = hiddenIds();
+        if (!arr.includes(id)) arr.push(id);
+        lsSet(HIDE_KEY, arr);
+      }
+      function unhideId(id){
+        var arr = hiddenIds().filter(function(x){ return x!==id; });
+        lsSet(HIDE_KEY, arr);
+      }
+
+      function tag(txt){
+        var s=document.createElement('span'); s.className='tag'; s.textContent=txt; return s;
+      }
+
+      function makeCard(t){
+        var root=document.createElement('article'); root.className='card';
+        root.setAttribute('data-cat',t.categoria); root.setAttribute('data-id',t.id);
+
+        var thumb=document.createElement('div'); thumb.className='thumb'; thumb.textContent=t.titulo;
+
+        var body=document.createElement('div'); body.className='body';
+        var h3=document.createElement('h3'); h3.className='title'; h3.textContent=t.titulo;
+        var p=document.createElement('p'); p.className='meta'; p.textContent=t.desc;
+        var tags=document.createElement('div'); tags.className='tags';
+        (t.tags||[]).forEach(function(x){ tags.appendChild(tag(x)); });
+
+        var actions=document.createElement('div'); actions.className='actions';
+        var aUsar=document.createElement('a'); aUsar.className='btn primary';
+        aUsar.href=t.usar||'#'; aUsar.target='_blank'; aUsar.rel='noopener'; aUsar.textContent='Usar';
+        actions.appendChild(aUsar);
+
+        body.appendChild(h3); body.appendChild(p); body.appendChild(tags);
+        root.appendChild(thumb); root.appendChild(body); root.appendChild(actions);
+        return root;
+      }
+
+      function render(list){
+        elCards.innerHTML='';
+        list.forEach(function(it){ elCards.appendChild(makeCard(it)); });
+        elEmpty.style.display = list.length ? 'none' : 'block';
+        if (document.body.classList.contains('ci-on')) {
+          try { window.__IATE_ADMIN_ATTACH__ && window.__IATE_ADMIN_ATTACH__(); } catch(e){}
+        }
+        try { applyOverrides(); } catch(e){}
+      }
+
+      function applyFilters(){
+        var q=(elQ.value||'').toLowerCase().trim();
+        var hidden=new Set(hiddenIds());
+        var out=[];
+        for (var i=0;i<APIS.length;i++){
+          var t=APIS[i];
+          if (hidden.has(t.id)) continue;
+          var catOk = (currentCat==='all') || (t.categoria===currentCat);
+          var text = (t.titulo+' '+t.desc+' '+(t.tags||[]).join(' ')+' '+t.categoria).toLowerCase();
+          var qOk  = !q || text.indexOf(q)!==-1;
+          if (catOk && qOk) out.push(t);
+        }
+        render(out);
+      }
+
+      elQ.addEventListener('input', applyFilters);
+      elFilters.addEventListener('click', function(e){
+        var btn=e.target.closest('.chip'); if(!btn) return;
+        elFilters.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+        btn.classList.add('active');
+        currentCat = btn.getAttribute('data-filter') || 'all';
+        applyFilters();
+      });
+
+      // primeira carga
+      applyFilters();
+
+      // sair (mantém igual às demais páginas)
+      document.getElementById('btnSair').addEventListener('click', function(){
+        localStorage.removeItem('qg.session');
+        localStorage.removeItem('qg.isAdmin');
+        location.href='../../../../00-login/login/frontend/inicial.html';
+      });
+
+      // expõe API p/ overlay admin
+      window.__QG_IATERC__ = {
+        getAll: function(){ return APIS.slice(); },
+        setAll: function(arr){ APIS = arr.slice(); applyFilters(); },
+        prepend: function(obj){ APIS.unshift(obj); applyFilters(); },
+        _getCreated: function(){ return lsGet(ADD_KEY, []); },
+        _setCreated: function(arr){ lsSet(ADD_KEY, arr); },
+        _getOverrides: function(){ return lsGet(OV_KEY, {}); },
+        _setOverrides: function(obj){ lsSet(OV_KEY, obj); },
+        _hideId: hideId,
+        _unhideId: unhideId,
+        _apply: applyFilters
+      };
+
+      // overrides no DOM
+      function getOverrides(){ return lsGet(OV_KEY, {}); }
+      function applyOverrides(){
+        var ov=getOverrides();
+        document.querySelectorAll('.card').forEach(function(card){
+          var id = card.getAttribute('data-id'); if(!id) return;
+          var data = ov[id]; if(!data) return;
+          var $title = card.querySelector('.title');
+          var $desc  = card.querySelector('.meta');
+          var $tags  = card.querySelector('.tags');
+          var $usar  = card.querySelector('.actions a.btn.primary');
+          var $thumb = card.querySelector('.thumb');
+
+          if (data.titulo && $title) $title.textContent = data.titulo;
+          if (data.desc   && $desc)  $desc.textContent  = data.desc;
+          if (Array.isArray(data.tags) && $tags){
+            $tags.innerHTML=''; data.tags.forEach(function(t){ var sp=document.createElement('span'); sp.className='tag'; sp.textContent=t; $tags.appendChild(sp); });
+          }
+          if (data.usar  && $usar)  $usar.href = data.usar;
+          if ($thumb && data.titulo) $thumb.textContent = data.titulo;
+          if (data.categoria) card.setAttribute('data-cat', data.categoria);
+        });
+      }
+      window.applyOverridesThird = applyOverrides;
+    })();
+  </script>
+
+  <!-- ===== Painel Admin EMBUTIDO (Editar/Adicionar/Excluir) ===== -->
+  <script>
+    (function(){
+      // modo admin: usa o mesmo flag local já combinado
+      var isAdmin = (function(){
+        try { return JSON.parse(localStorage.getItem('qg.isAdmin'))===1 || localStorage.getItem('qg.isAdmin')==='1'; }
+        catch(e){ return false; }
+      })();
+      if (!isAdmin) return;
+
+      function $(s,r){ return (r||document).querySelector(s); }
+      function $$(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+      function slugify(str){
+        return (str||'').toString()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+          .toLowerCase().replace(/[^a-z0-9]+/g,'-')
+          .replace(/^-+|-+$/g,'').slice(0,60) || 'api';
+      }
+      function getCardId(card){
+        var explicit=card.getAttribute('data-id');
+        if (explicit) return explicit;
+        var titleEl=card.querySelector('.title');
+        var title=titleEl?(titleEl.textContent||'').trim():'api';
+        return 'api-'+slugify(title);
+      }
+
+      var API = window.__QG_IATERC__;
+      if (!API) return;
+
+      function getOverrides(){ return API._getOverrides(); }
+      function setOverrides(o){ API._setOverrides(o); }
+      function getCreated(){ return API._getCreated(); }
+      function setCreated(a){ API._setCreated(a); }
+      function hideId(id){ API._hideId(id); }
+      function unhideId(id){ API._unhideId(id); }
+
+      function makeCardDOM(data){
+        var root=document.createElement('article'); root.className='card';
+        root.setAttribute('data-cat', data.categoria||''); root.setAttribute('data-id', data.id);
+
+        var thumb=document.createElement('div'); thumb.className='thumb'; thumb.textContent=data.titulo||'Nova IA';
+        var body=document.createElement('div'); body.className='body';
+        var h3=document.createElement('h3'); h3.className='title'; h3.textContent=data.titulo||'';
+        var p=document.createElement('p'); p.className='meta'; p.textContent=data.desc||'';
+        var tags=document.createElement('div'); tags.className='tags';
+        (data.tags||[]).forEach(function(t){ var sp=document.createElement('span'); sp.className='tag'; sp.textContent=t; tags.appendChild(sp); });
+
+        var actions=document.createElement('div'); actions.className='actions';
+        var aUsar=document.createElement('a'); aUsar.className='btn primary';
+        aUsar.href=data.usar||'#'; aUsar.target='_blank'; aUsar.rel='noopener'; aUsar.textContent='Usar';
+        actions.appendChild(aUsar);
+
+        body.appendChild(h3); body.appendChild(p); body.appendChild(tags);
+        root.appendChild(thumb); root.appendChild(body); root.appendChild(actions);
+        return root;
+      }
+
+      function attachBadges(){
+        $$('.card').forEach(function(card){
+          if (card.querySelector('.ci-badge')) return;
+          var badge=document.createElement('div'); badge.className='ci-badge';
+          var btn=document.createElement('button'); btn.className='btn'; btn.type='button'; btn.textContent='✏️ Editar';
+          btn.addEventListener('click', function(){ openModal({mode:'edit', card:card}); });
+          badge.appendChild(btn);
+          card.style.position='relative';
+          card.appendChild(badge);
+        });
+      }
+      window.__IATE_ADMIN_ATTACH__ = attachBadges;
+
+      var back=null, modal=null, current={mode:'edit', card:null};
+
+      function ensureModal(){
+        if (back && modal) return;
+        back=document.createElement('div'); back.className='ci-back'; back.addEventListener('click', closeModal);
+        modal=document.createElement('div'); modal.className='ci-modal';
+
+        var h3=document.createElement('h3'); h3.id='ci_title'; h3.textContent='Editar item';
+
+        var grid=document.createElement('div'); grid.className='ci-grid';
+        function field(labelTxt,id,type,full,isTextarea){
+          var wrap=document.createElement('div'); wrap.className='ci-field'+(full?' full':'');
+          var lab=document.createElement('label'); lab.textContent=labelTxt; wrap.appendChild(lab);
+          var input; if(isTextarea){ input=document.createElement('textarea'); input.rows=3; } else { input=document.createElement('input'); input.type=type||'text'; }
+          input.id=id; wrap.appendChild(input); return wrap;
+        }
+        grid.appendChild(field('Título','ci_titulo','text',true,false));
+        grid.appendChild(field('Descrição','ci_desc','text',true,true));
+        grid.appendChild(field('Provedor (categoria)','ci_cat','text',false,false));
+        grid.appendChild(field('Tags (vírgula)','ci_tags','text',false,false));
+        grid.appendChild(field('Link "Usar"','ci_usar','url',true,false));
+
+        var actions=document.createElement('div'); actions.className='ci-actions';
+        var btnDelete=document.createElement('button'); btnDelete.className='ci-btn danger'; btnDelete.type='button'; btnDelete.id='ci_delete'; btnDelete.textContent='Excluir';
+        var btnCancel=document.createElement('button'); btnCancel.className='ci-btn secondary'; btnCancel.type='button'; btnCancel.id='ci_cancel'; btnCancel.textContent='Cancelar';
+        var btnSave=document.createElement('button'); btnSave.className='ci-btn primary'; btnSave.type='button'; btnSave.id='ci_save'; btnSave.textContent='Salvar';
+        actions.appendChild(btnDelete); actions.appendChild(btnCancel); actions.appendChild(btnSave);
+
+        modal.appendChild(h3); modal.appendChild(grid); modal.appendChild(actions);
+        document.body.appendChild(back); document.body.appendChild(modal);
+
+        document.getElementById('ci_cancel').addEventListener('click', closeModal);
+        document.getElementById('ci_save').addEventListener('click', saveModal);
+        document.getElementById('ci_delete').addEventListener('click', deleteCurrent);
+      }
+
+      function openModal(opts){
+        ensureModal();
+        current.mode=opts.mode; current.card=opts.card||null;
+        $('#ci_title').textContent = (opts.mode==='create')? 'Adicionar IA' : 'Editar IA';
+        $('#ci_delete').style.display = (opts.mode==='edit')? 'inline-block' : 'none';
+
+        if (opts.mode==='edit' && current.card){
+          var id=getCardId(current.card); var ov=getOverrides()[id]||{};
+          $('#ci_titulo').value = ov.titulo || (current.card.querySelector('.title')?.textContent.trim()||'');
+          $('#ci_desc').value   = ov.desc   || (current.card.querySelector('.meta')?.textContent.trim()||'');
+          $('#ci_cat').value    = ov.categoria || current.card.getAttribute('data-cat') || '';
+          var tagsDom = $$('.tags .tag', current.card).map(function(x){ return x.textContent.trim(); });
+          $('#ci_tags').value   = ov.tags ? ov.tags.join(', ') : tagsDom.join(', ');
+          var usarEl = current.card.querySelector('.actions a.btn.primary');
+          $('#ci_usar').value   = ov.usar || (usarEl ? usarEl.getAttribute('href') : '');
+        } else {
+          $('#ci_titulo').value=''; $('#ci_desc').value=''; $('#ci_cat').value='';
+          $('#ci_tags').value=''; $('#ci_usar').value='';
+        }
+        back.style.display='block'; modal.style.display='block';
+      }
+
+      function closeModal(){ current.card=null; back.style.display='none'; modal.style.display='none'; }
+
+      function saveModal(){
+        var titulo=$('#ci_titulo').value.trim();
+        var desc  =$('#ci_desc').value.trim();
+        var cat   =$('#ci_cat').value.trim();
+        var tags  =$('#ci_tags').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var usar  =$('#ci_usar').value.trim();
+
+        if (current.mode==='edit' && current.card){
+          var id=getCardId(current.card); var ov=getOverrides(); ov[id]={titulo:titulo,desc:desc,categoria:cat,tags:tags,usar:usar}; setOverrides(ov);
+          try{
+            var $title=current.card.querySelector('.title');
+            var $desc =current.card.querySelector('.meta');
+            var $usar =current.card.querySelector('.actions a.btn.primary');
+            var $tags =current.card.querySelector('.tags');
+            var $thumb=current.card.querySelector('.thumb');
+            if($title) $title.textContent=titulo; if($desc) $desc.textContent=desc; if($usar) $usar.href=usar||'#';
+            if($thumb) $thumb.textContent=titulo;
+            if($tags){ $tags.innerHTML=''; tags.forEach(function(t){ var sp=document.createElement('span'); sp.className='tag'; sp.textContent=t; $tags.appendChild(sp); }); }
+            current.card.setAttribute('data-cat', cat);
+          }catch(e){}
+          closeModal(); return;
+        }
+
+        // create
+        var idNew='api-'+slugify(titulo||String(Date.now()));
+        var created=getCreated(); var obj={id:idNew,titulo:titulo,desc:desc,categoria:cat,tags:tags,usar:usar};
+        created.push(obj); setCreated(created);
+
+        var GRID=document.getElementById('cards'); if(GRID){ GRID.prepend(makeCardDOM(obj)); if(document.body.classList.contains('ci-on')) attachBadges(); }
+        var all=API.getAll(); all.unshift(obj); API.setAll(all); unhideId(idNew);
+        closeModal();
+      }
+
+      function deleteCurrent(){
+        if(!current.card) return;
+        var id=current.card.getAttribute('data-id')||getCardId(current.card);
+        if(!id) return;
+        if(!confirm('Tem certeza que deseja excluir este item?')) return;
+
+        var created=getCreated(); var before=created.length;
+        created=created.filter(function(x){ return x.id!==id; });
+        if(created.length!==before){ setCreated(created); } else { hideId(id); }
+
+        var all=API.getAll().filter(function(x){ return x.id!==id; }); API.setAll(all);
+        try{ current.card.remove(); }catch(e){}
+        closeModal();
+      }
+
+      function buildFabs(){
+        var fabEdit=document.createElement('button'); fabEdit.className='ci-fab'; fabEdit.type='button'; fabEdit.textContent='Editar';
+        fabEdit.addEventListener('click', function(){
+          document.body.classList.toggle('ci-on');
+          fabEdit.textContent = document.body.classList.contains('ci-on') ? 'Sair do modo edição' : 'Editar';
+          if(document.body.classList.contains('ci-on')) attachBadges();
+        });
+
+        var fabAdd=document.createElement('button'); fabAdd.className='ci-fab-add'; fabAdd.type='button'; fabAdd.textContent='Adicionar IA';
+        fabAdd.addEventListener('click', function(){ openModal({mode:'create'}); });
+
+        document.body.appendChild(fabAdd); document.body.appendChild(fabEdit);
+      }
+
+      function boot(){ buildFabs(); attachBadges(); }
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+    })();
+  </script>
+</body>
+</html>

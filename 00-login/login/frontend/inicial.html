@@ -1,29 +1,169 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>QG • Login</title>
+  <title>Login — QG 007</title>
+
+  <style>
+    :root{
+      --bg:#0d0d0d; --panel:rgba(255,255,255,.06);
+      --borda:rgba(255,255,255,.12); --verde:#00ff88; --txt:#eee; --txt2:#cfcfcf;
+    }
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; min-height:100vh; color:var(--txt);
+      background:linear-gradient(135deg,#0d0d0d,#1a1a1a);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+
+    .card{
+      width:min(480px, 92vw);
+      backdrop-filter:blur(14px);
+      background:var(--panel);
+      border:1px solid var(--borda);
+      border-radius:16px; padding:22px;
+      box-shadow:0 0 20px rgba(0,255,136,.25);
+    }
+    h1{ margin:0 0 12px; color:var(--verde); font-size:26px; }
+    p.desc{ margin:0 0 18px; color:var(--txt2); }
+
+    label{ display:block; margin:0 0 6px; color:var(--txt2); font-size:14px; }
+    input{
+      width:100%; padding:12px; border-radius:10px; outline:none;
+      background:rgba(255,255,255,.08); border:1px solid var(--borda); color:#fff;
+    }
+    .row{ display:grid; gap:12px; margin-bottom:12px; }
+    .actions{ display:flex; gap:10px; align-items:center; justify-content:flex-end; margin-top:10px; }
+    .btn{
+      border:none; border-radius:10px; padding:12px 16px; font-weight:800; cursor:pointer;
+    }
+    .btn.primary{ background:var(--verde); color:#000; }
+    .btn.primary:hover{ background:#00e07a; }
+    .btn.secondary{ background:#444; color:#fff; }
+    .btn.secondary:hover{ background:#666; }
+
+    .status{ margin-top:8px; min-height:18px; font-size:13px; color:#cfcfcf; }
+    .muted{ color:#aaa; font-size:12px; margin-top:12px; }
+  </style>
 </head>
 <body>
-  <section style="padding:24px; max-width:420px">
-    <h1>Login</h1>
-    <p>(Aqui vai seu formulário de login futuramente)</p>
-    <!-- Exemplo de placeholders -->
-    <form onsubmit="return false;">
-      <label>Email</label>
-      <input type="email" style="width:100%;padding:8px;margin:6px 0" />
-      <label>Senha</label>
-      <input type="password" style="width:100%;padding:8px;margin:6px 0" />
-      <button style="padding:10px 16px;margin-top:8px">Entrar</button>
+
+  <div class="card">
+    <h1>Entrar no QG</h1>
+    <p class="desc">Autentique com e‑mail e senha do Firebase. Se seu e‑mail estiver na lista interna de admins, o modo admin será ativado.</p>
+
+    <form id="formLogin">
+      <div class="row">
+        <div>
+          <label for="email">E‑mail</label>
+          <input type="email" id="email" placeholder="voce@email.com" autocomplete="username" required />
+        </div>
+        <div>
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" placeholder="********" autocomplete="current-password" required />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="btnLimpar" class="btn secondary">Limpar</button>
+        <button type="submit" id="btnEntrar" class="btn primary">Entrar</button>
+      </div>
+
+      <div id="status" class="status"></div>
+      <p class="muted">
+        Dica: admins são definidos por e‑mail em uma lista interna (sem Firestore).
+      </p>
     </form>
-  </section>
+  </div>
 
-  <!-- Firebase (necessário nesta página) -->
-  <script src="/00-login/login/backend/firebase-init.js" type="module"></script>
-  <script src="/00-login/login/backend/auth-role.js" type="module"></script>
+  <!-- Firebase (modular) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  <!-- Auto menu -->
-  <script src="/04-header/menu-lateral/frontend/auto-menu.js" defer></script>
+    // ======= CONFIG DO PROJETO =======
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3qLC0mq0snYDVjgcMqlxpotgALTHd0uY",
+      authDomain: "qg007-b890a.firebaseapp.com",
+      projectId: "qg007-b890a",
+      storageBucket: "qg007-b890a.firebasestorage.app",
+      messagingSenderId: "230480486221",
+      appId: "1:230480486221:web:a232dcd4d9225ab254e104"
+    };
+
+    // ======= INIT =======
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const $ = (s, r=document) => r.querySelector(s);
+    const setStatus = (msg) => $("#status").textContent = msg || "";
+
+    // Destino pós-login (Área de Membro)
+    const DESTINO = "../../../01-publico/area-membro/front-ent/inicial.html";
+
+    // ======= LISTA INTERNA DE ADM (e‑mails) =======
+    // Adicione/retire os e‑mails que terão modo admin.
+    const ADM_EMAILS = [
+      "primeiro.dark.ofc@gmail.com"
+    ];
+
+    function isAdminEmail(email){
+      if (!email) return false;
+      return ADM_EMAILS.map(e => e.toLowerCase().trim()).includes(email.toLowerCase().trim());
+    }
+
+    // ======= login =======
+    $("#formLogin").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      setStatus("Autenticando...");
+      const email = $("#email").value.trim();
+      const senha = $("#senha").value;
+
+      try{
+        const cred = await signInWithEmailAndPassword(auth, email, senha);
+        const user = cred.user;
+
+        const admin = isAdminEmail(user.email);
+        // grava sessão e flag admin para o front
+        localStorage.setItem("qg.session", JSON.stringify({
+          email: user.email || "",
+          uid: user.uid,
+          isAdmin: admin,
+          ts: Date.now()
+        }));
+        localStorage.setItem("qg.isAdmin", admin ? "1" : "0");
+
+        setStatus(admin ? "Admin detectado. Redirecionando..." : "Login ok. Redirecionando...");
+        location.href = DESTINO;
+      }catch(err){
+        console.error(err);
+        setStatus("Falha no login. Verifique e-mail/senha.");
+      }
+    });
+
+    $("#btnLimpar").addEventListener("click", ()=>{
+      $("#email").value = "";
+      $("#senha").value = "";
+      setStatus("");
+    });
+
+    // Já logado? Redireciona
+    onAuthStateChanged(auth, (user)=>{
+      if (!user) return;
+      // garante flag admin coerente com a lista
+      const admin = isAdminEmail(user.email);
+      localStorage.setItem("qg.session", JSON.stringify({
+        email: user.email || "",
+        uid: user.uid,
+        isAdmin: admin,
+        ts: Date.now()
+      }));
+      localStorage.setItem("qg.isAdmin", admin ? "1" : "0");
+      location.href = DESTINO;
+    });
+  </script>
 </body>
 </html>

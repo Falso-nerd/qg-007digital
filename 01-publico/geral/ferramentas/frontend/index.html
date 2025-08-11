@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sites Pronto — QG 007</title>
+  <title>Ferramentas — QG 007</title>
 
   <!-- Menu universal -->
   <link rel="stylesheet" href="../../../../04-header/menu-lateral/frontend/menu.css" />
@@ -161,7 +161,7 @@
   <!-- CONTEÚDO -->
   <main>
     <div class="header">
-      <h1>Sites Pronto</h1>
+      <h1>Ferramentas</h1>
 
       <div class="search">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-3.8-3.8M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#9fffcf" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -170,10 +170,10 @@
 
       <div class="filters" id="filters">
         <button class="chip active" data-filter="all">Todos</button>
-        <button class="chip" data-filter="landing">Landing</button>
-        <button class="chip" data-filter="blog">Blog</button>
-        <button class="chip" data-filter="loja">Loja</button>
-        <button class="chip" data-filter="portfolio">Portfólio</button>
+        <button class="chip" data-filter="seo">SEO</button>
+        <button class="chip" data-filter="produtividade">Produtividade</button>
+        <button class="chip" data-filter="midia">Mídia</button>
+        <button class="chip" data-filter="dev">Dev</button>
       </div>
     </div>
 
@@ -190,27 +190,26 @@
   <!-- JS local -->
   <script>
     (function(){
-      // chaves dedicadas a SITES PRONTO (não colidem com Ferramentas)
-      var OV_KEY   = 'sites.catalog.overrides';
-      var ADD_KEY  = 'sites.catalog.created';
-      var HIDE_KEY = 'sites.catalog.hiddenIds';
+      var OV_KEY  = 'tools.catalog.overrides';
+      var ADD_KEY = 'tools.catalog.created';
+      var HIDE_KEY = 'tools.catalog.hiddenIds';
 
       function lsGet(k, d){ try{ var v=localStorage.getItem(k); return v? JSON.parse(v): d; }catch(e){ return d; } }
       function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 
-      // catálogo base
-      var SITES = [
-        { id:'lp-agencia',     titulo:'Landing — Agência',     categoria:'landing',   desc:'Landing page moderna para agência digital.',  tags:['Landing','One-Page','Lead'], usar:'#', baixar:'#' },
-        { id:'blog-tecnologia',titulo:'Blog — Tecnologia',     categoria:'blog',      desc:'Template de blog com listagem e post detalhado.', tags:['Blog','Tech','SEO'], usar:'#', baixar:'#' },
-        { id:'loja-minimal',   titulo:'Loja — Minimal',        categoria:'loja',      desc:'Vitrine minimalista com carrinho (HTML/CSS).',   tags:['Loja','E-commerce'], usar:'#', baixar:'#' },
-        { id:'portfolio-pro',  titulo:'Portfólio — Pro',       categoria:'portfolio', desc:'Grade de projetos, sobre e contato.',            tags:['Portfolio','Dev','UX'], usar:'#', baixar:'#' },
-        { id:'lp-restaurante', titulo:'Landing — Restaurante', categoria:'landing',   desc:'Cardápio, reservas e reviews em destaque.',     tags:['Landing','Food'], usar:'#', baixar:'#' }
+      var TOOLS = [
+        { id:'seo-analyzer',   titulo:'SEO Analyzer',    categoria:'seo',           desc:'Auditoria rápida de SEO on-page.',                     tags:['SEO','Meta','Speed'], usar:'#', baixar:'#' },
+        { id:'img-compressor', titulo:'Image Compressor', categoria:'midia',        desc:'Compacte imagens mantendo boa qualidade.',             tags:['Imagem','PNG','JPG'], usar:'#', baixar:'#' },
+        { id:'task-focus',     titulo:'Task Focus',       categoria:'produtividade',desc:'Pomodoro + checklist para foco total.',               tags:['Pomodoro','Tarefas'], usar:'#', baixar:'#' },
+        { id:'json-formatter', titulo:'JSON Formatter',   categoria:'dev',          desc:'Formatar/validar JSON com highlight.',                tags:['Dev','JSON'],        usar:'#', baixar:'#' },
+        { id:'video-trimmer',  titulo:'Video Trimmer',    categoria:'midia',        desc:'Corte simples de vídeos direto no navegador.',        tags:['Vídeo','WebCodecs'], usar:'#', baixar:'#' },
+        { id:'keyword-cluster',titulo:'Keyword Cluster',  categoria:'seo',          desc:'Agrupador de palavras-chave por intenção.',           tags:['SEO','Cluster'],     usar:'#', baixar:'#' }
       ];
 
-      // mescla criados salvos
+      // ★★★ mescla criados na memória ao carregar
       var CREATED_ON_LOAD = lsGet(ADD_KEY, []);
       if (Array.isArray(CREATED_ON_LOAD) && CREATED_ON_LOAD.length){
-        SITES = CREATED_ON_LOAD.concat(SITES);
+        TOOLS = CREATED_ON_LOAD.concat(TOOLS);
       }
 
       var elCards = document.getElementById('cards');
@@ -299,11 +298,11 @@
           elCards.appendChild(makeCard(list[i]));
         }
         elEmpty.style.display = list.length ? 'none' : 'block';
-        // badges no modo edição
+        // reatacha badges no modo edição
         if (document.body.classList.contains('ci-on')) {
-          try { window.__SITES_ADMIN_ATTACH__ && window.__SITES_ADMIN_ATTACH__(); } catch(e){}
+          try { window.__FERRAMENTAS_ADMIN_ATTACH__ && window.__FERRAMENTAS_ADMIN_ATTACH__(); } catch(e){}
         }
-        // aplicar overrides
+        // ★★★ aplica overrides após render
         try { applyOverrides(); } catch(e){}
       }
 
@@ -311,9 +310,9 @@
         var q = (elQ.value || '').toLowerCase().trim();
         var hidden = new Set(hiddenIds());
         var out = [];
-        for (var i=0;i<SITES.length;i++){
-          var t = SITES[i];
-          if (hidden.has(t.id)) continue;
+        for (var i=0;i<TOOLS.length;i++){
+          var t = TOOLS[i];
+          if (hidden.has(t.id)) continue; // ignora excluídos
           var catOk = currentCat === 'all' ? true : (t.categoria === currentCat);
           var text = (t.titulo + ' ' + t.desc + ' ' + t.tags.join(' ') + ' ' + t.categoria).toLowerCase();
           var qOk = !q || text.indexOf(q) !== -1;
@@ -332,7 +331,7 @@
         applyFilters();
       });
 
-      // primeira carga
+      // ★★★ primeira carga: usar filtros (respeita hiddenIds), NÃO render(TOOLS)
       applyFilters();
 
       document.getElementById('btnSair').addEventListener('click', function(){
@@ -341,11 +340,11 @@
         location.href='../../../../00-login/login/frontend/inicial.html';
       });
 
-      // expõe API ao admin
-      window.__QG_SITES__ = {
-        getAll: function(){ return SITES.slice(); },
-        setAll: function(arr){ SITES = arr.slice(); applyFilters(); },
-        prepend: function(obj){ SITES.unshift(obj); applyFilters(); },
+      // expor API p/ admin
+      window.__QG_TOOLS__ = {
+        getAll: function(){ return TOOLS.slice(); },
+        setAll: function(arr){ TOOLS = arr.slice(); applyFilters(); },
+        prepend: function(obj){ TOOLS.unshift(obj); applyFilters(); },
         _getCreated: function(){ return lsGet(ADD_KEY, []); },
         _setCreated: function(arr){ lsSet(ADD_KEY, arr); },
         _getOverrides: function(){ return lsGet(OV_KEY, {}); },
@@ -355,7 +354,7 @@
         _apply: applyFilters
       };
 
-      // overrides (DOM)
+      // ==== overrides (DOM) ====
       function getOverrides(){ return lsGet(OV_KEY, {}); }
       function applyOverrides(){
         var ov = getOverrides();
@@ -384,11 +383,11 @@
           if (data.categoria) card.setAttribute('data-cat', data.categoria);
         });
       }
-      window.applyOverridesSites = applyOverrides;
+      window.applyOverrides = applyOverrides; // usado dentro do admin
     })();
   </script>
 
-  <!-- ===== Painel Admin EMBUTIDO (Editar/Adicionar/Excluir) ===== -->
+  <!-- ===== Painel Admin EMBUTIDO (com Excluir) ===== -->
   <script>
     (function () {
       var isAdmin = (function(){
@@ -404,17 +403,17 @@
         return (str||'').toString()
           .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
           .toLowerCase().replace(/[^a-z0-9]+/g,'-')
-          .replace(/^-+|-+$/g,'').slice(0,60) || 'site';
+          .replace(/^-+|-+$/g,'').slice(0,60) || 'tool';
       }
       function getCardId(card){
         var explicit = card.getAttribute('data-id');
         if (explicit) return explicit;
         var titleEl = card.querySelector('.title');
-        var title = titleEl ? (titleEl.textContent||'').trim() : 'site';
-        return 'site-' + slugify(title);
+        var title = titleEl ? (titleEl.textContent||'').trim() : 'tool';
+        return 'tool-' + slugify(title);
       }
 
-      var API = window.__QG_SITES__;
+      var API = window.__QG_TOOLS__;
       if (!API) return;
 
       function getOverrides(){ return API._getOverrides(); }
@@ -433,7 +432,7 @@
 
         var thumb = document.createElement('div');
         thumb.className = 'thumb';
-        thumb.textContent = data.titulo || 'Novo Site';
+        thumb.textContent = data.titulo || 'Nova Ferramenta';
 
         var body = document.createElement('div');
         body.className = 'body';
@@ -500,7 +499,7 @@
           card.appendChild(badge);
         });
       }
-      window.__SITES_ADMIN_ATTACH__ = attachBadges;
+      window.__FERRAMENTAS_ADMIN_ATTACH__ = attachBadges;
 
       var back = null, modal = null, current = { mode:'edit', card:null };
 
@@ -515,7 +514,7 @@
 
         var h3 = document.createElement('h3');
         h3.id = 'ci_title';
-        h3.textContent = 'Editar site';
+        h3.textContent = 'Editar ferramenta';
 
         var grid = document.createElement('div');
         grid.className = 'ci-grid';
@@ -588,7 +587,7 @@
         current.mode = opts.mode;
         current.card = opts.card || null;
 
-        document.getElementById('ci_title').textContent = (opts.mode === 'create') ? 'Adicionar site' : 'Editar site';
+        document.getElementById('ci_title').textContent = (opts.mode === 'create') ? 'Adicionar ferramenta' : 'Editar ferramenta';
 
         var delBtn = document.getElementById('ci_delete');
         delBtn.style.display = (opts.mode === 'edit') ? 'inline-block' : 'none';
@@ -637,6 +636,7 @@
           var ov = getOverrides();
           ov[id] = { titulo:titulo, desc:desc, categoria:cat, tags:tags, usar:usar, baixar:baixar };
           setOverrides(ov);
+          // aplicar no DOM atual
           try {
             var $title = current.card.querySelector('.title');
             var $desc  = current.card.querySelector('.meta');
@@ -662,13 +662,13 @@
         }
 
         // create
-        var idNew = 'site-' + slugify(titulo || String(Date.now()));
+        var idNew = 'tool-' + slugify(titulo || String(Date.now()));
         var created = getCreated();
         var obj = { id:idNew, titulo:titulo, desc:desc, categoria:cat, tags:tags, usar:usar, baixar:baixar };
         created.push(obj);
         setCreated(created);
 
-        // DOM + memória
+        // insere no DOM & na lista em memória
         var GRID = document.getElementById('cards');
         if (GRID) {
           GRID.prepend(makeCardDOM(obj));
@@ -678,7 +678,6 @@
         all.unshift(obj);
         API.setAll(all);
         unhideId(idNew);
-
         closeModal();
       }
 
@@ -686,9 +685,9 @@
         if (!current.card) return;
         var id = current.card.getAttribute('data-id') || getCardId(current.card);
         if (!id) return;
-        if (!confirm('Tem certeza que deseja excluir este site?')) return;
+        if (!confirm('Tem certeza que deseja excluir esta ferramenta?')) return;
 
-        // se foi criado, remove do created; senão, oculta
+        // se criada via painel, remove de created; senão, marca como oculta
         var created = getCreated();
         var before = created.length;
         created = created.filter(function(x){ return x.id !== id; });
@@ -720,7 +719,7 @@
         var fabAdd = document.createElement('button');
         fabAdd.className = 'ci-fab-add';
         fabAdd.type = 'button';
-        fabAdd.textContent = 'Adicionar Site';
+        fabAdd.textContent = 'Adicionar Ferramenta';
         fabAdd.addEventListener('click', function(){ openModal({ mode:'create' }); });
 
         document.body.appendChild(fabAdd);
